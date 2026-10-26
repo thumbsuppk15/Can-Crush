@@ -239,6 +239,17 @@ html,body{font:500 15px/22px var(--text)}
 #banner h2{font-weight:800;letter-spacing:.01em}
 #callout{font-weight:800;letter-spacing:.02em;color:var(--warm)}
 #callout.sage{color:var(--cyan)}
+#callout.energy{color:#1f8fff;-webkit-text-stroke:1.5px #e9fbff} .pop.energy{color:#1668d8;font-size:22px}
+/* Energy Booster Can: HUD chip and one-time tutorial card */
+.energy-chip{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:linear-gradient(160deg,#2a8cff,#0a2f7a);color:#e9fbff;flex:none;box-shadow:0 0 0 2px rgba(57,198,217,.35)}
+.energy-chip.big{width:42px;height:42px}
+.energy-tip{position:absolute;left:50%;top:calc(var(--gt) + 104px);transform:translateX(-50%);display:flex;align-items:center;gap:12px;width:min(460px,calc(100% - 32px));
+  background:rgba(244,235,221,.97);border:1px solid var(--hairline);border-radius:16px;padding:10px 12px 10px 12px;box-shadow:0 10px 30px rgba(30,20,12,.25);pointer-events:auto;animation:tipIn .3s ease both}
+@keyframes tipIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.energy-tip div{flex:1;min-width:0}
+.energy-tip b{font:800 19px/22px var(--display);letter-spacing:.02em}
+.energy-tip p{margin:2px 0 0;font:800 15px/19px var(--display);letter-spacing:.03em;color:#1668d8}
+@media (max-width:560px){.energy-tip{top:calc(var(--gt) + 96px)}}
 .pop{font:800 26px/1 var(--display);color:var(--warm)} .pop.gold{font-size:30px} .pop.combo{color:#3f7a52;font-size:22px}
 .stat-list dd{font:800 18px/22px var(--display)}
 .stat-list .total dd{font:800 30px/30px var(--display)}
@@ -260,6 +271,10 @@ html,body{font:500 15px/22px var(--text)}
 @keyframes bump{40%{transform:scale(1.2);color:var(--warm)}}
 #loading .lg span,.logo h1 span,#menu .logo h1 span{color:var(--warm)}
 #menu .logo p{color:var(--cyan)} #menu .logo p::before{background:var(--cyan)}
+/* Round sound on/off button (menu top-right, HUD beside Pause) */
+.menu-sound{position:fixed;top:var(--gt);right:var(--gr);width:52px;height:52px}
+.sound-btn[aria-pressed="false"]{color:var(--walnut-muted);background:rgba(232,220,198,.96)}
+.sound-btn svg{display:block}
 </style>
 <script type="importmap">
 {"imports":{
@@ -277,8 +292,9 @@ html,body{font:500 15px/22px var(--text)}
 <!-- ============ HUD ============ -->
 <div id="hud" hidden>
   <div class="hud-top">
-    <div class="pill hud-level"><span class="label">Level</span><b id="hudLevel">1</b><span class="hud-name" id="hudName"></span></div>
+    <div class="pill hud-level"><span class="label">Level</span><b id="hudLevel">1</b><span class="hud-name" id="hudName"></span><span class="energy-chip" id="hudEnergy" title="This level has an Energy Booster Can" hidden><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 4 14h7l-1 8 10-12h-7z" fill="currentColor"/></svg></span></div>
     <div class="pill hud-score"><span class="label">Score</span><b id="hudScore">0</b></div>
+    <button class="icon-btn sound-btn" data-action="sound" aria-label="Sound" aria-pressed="true"></button>
     <button class="icon-btn" data-action="pause" aria-label="Pause">
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1.2" fill="currentColor"/><rect x="9.5" y="2" width="3.5" height="12" rx="1.2" fill="currentColor"/></svg>
     </button>
@@ -286,6 +302,11 @@ html,body{font:500 15px/22px var(--text)}
   <div class="pill hud-obj"><span id="hudObj">Knock down every can</span><div class="bar"><i id="hudBar"></i></div><span class="num" id="hudObjNum">0/0</span></div>
   <div class="pill hud-balls"><div id="hudBalls" style="display:flex;gap:6px"></div><span class="hud-ballname" id="hudBallName">Rubber</span></div>
   <div id="aimHint" hidden>Drag back to aim · release to throw</div>
+  <div id="energyTip" class="energy-tip" role="status" hidden>
+    <span class="energy-chip big"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 4 14h7l-1 8 10-12h-7z" fill="currentColor"/></svg></span>
+    <div><b>Energy Booster Can</b><p>HIT THE ENERGY CAN ⚡ UNLEASH A POWERFUL BLAST!</p></div>
+    <button class="btn small" id="energyTipOk" data-action="energy-ok">Got it</button>
+  </div>
 </div>
 <div id="fx" class="layer"></div>
 <div id="callout"></div>
@@ -306,6 +327,7 @@ html,body{font:500 15px/22px var(--text)}
     </div>
     <div class="menu-foot" id="menuFoot"></div>
   </div>
+  <button class="icon-btn sound-btn menu-sound" data-action="sound" aria-label="Sound" aria-pressed="true"></button>
 </section>
 
 <!-- ============ LEVEL SELECT ============ -->
@@ -351,7 +373,7 @@ html,body{font:500 15px/22px var(--text)}
       <li><div class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="12" width="6" height="8" rx="1.5" fill="#7e9474"/><rect x="14" y="12" width="6" height="8" rx="1.5" fill="#7e9474" transform="rotate(25 17 16)"/><rect x="9" y="4" width="6" height="8" rx="1.5" fill="#d4a640"/></svg></div><div><h3>Clear the stand</h3><p>A can counts once it falls off or tips over. Knock several with one ball for combo points.</p></div></li>
       <li><div class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.6 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="#d4a640"/></svg></div><div><h3>Next level</h3><p>Knock down every can to complete the level and unlock the next one. Balls you don't use add bonus points.</p></div></li>
     </ol>
-    <div class="legend"><span><i style="background:#ec3b5c"></i>Each can · 100 points</span><span><i style="background:#F29A50"></i>3+ cans with one ball · combo bonus</span></div>
+    <div class="legend"><span><i style="background:#ec3b5c"></i>Each can · 100 points</span><span><i style="background:#F29A50"></i>3+ cans with one ball · combo bonus</span><span><i style="background:linear-gradient(160deg,#2a8cff,#0a2f7a)"></i>Energy Booster Can ⚡ · hit it to release an energy pulse (bonus ×1 to ×5)</span></div>
     <p class="sub" style="margin:14px 0 0;font-size:13px">Keyboard: Esc pauses, R restarts the level.</p>
   </div>
 </section>
@@ -420,8 +442,25 @@ const CAN_TYPES = {
   n: { size: 'n', kind: 'std', pts: 100 }, s: { size: 's', kind: 'std', pts: 150 }, b: { size: 'b', kind: 'std', pts: 100 },
   h: { size: 'n', kind: 'heavy', pts: 250 }, H: { size: 'b', kind: 'heavy', pts: 250 },
   g: { size: 'n', kind: 'gold', pts: 500 }, G: { size: 's', kind: 'gold', pts: 500 },
+  e: { size: 'n', kind: 'energy', pts: 100 }, // Energy Booster Can: releases one radial energy pulse when the ball hits it
 };
 const HEAVY_MULT = 4.5;
+/* Energy Booster tuning. The pulse is a set of real impulses through cannon-es; nothing is scripted.
+   A level can override radius / push / lift with `energy: { … }` in its LEVELS entry. */
+const ENERGY = {
+  minHitSpeed: 1.0,     // ball impact speed (m/s) needed to activate the can
+  charge: 0.12,         // seconds of glowing "charge" between the hit and the pulse
+  radius: 1.35,         // cans whose centre is within this distance (m) are pushed
+  push: 4.0,            // outward speed (m/s) given to a can right next to the booster
+  lift: 2.3,            // upward speed (m/s) given to a can right next to the booster
+  falloff: 1.1,         // force = (1 - distance / radius) ^ falloff, so it fades smoothly to zero at the edge
+  selfLift: 1.0,        // small hop for the booster can itself
+  maxSpeed: 4.6,        // speed cap for any pushed can, so nothing flies across the room
+  bonusBase: 50,        // energy bonus per can = bonusBase × multiplier
+  maxMult: 5,           // multiplier grows ×1, ×2 … up to ×5 as more cans fall from one pulse
+  chainHitSpeed: 0.8,   // can-to-can contact speed that pulls a can into the energy chain
+};
+function energyCfg() { return Object.assign({}, ENERGY, (level.def && level.def.energy) || {}); }
 
 const BALLS = [
   { id: 'felt', name: 'Tennis', desc: 'The classic green fuzz ball. Light, quick and lively.', r: 0.115, mass: 0.36, speed: 11.5, rest: 0.6, fric: 0.8, cost: 0, sw: 'radial-gradient(circle at 35% 30%,#f1f78a,#cfe03a 55%,#8a9a1a)' },
@@ -452,26 +491,29 @@ const LEVELS = [
     platforms: [{ x: 0, z: 0, w: 1.0, stacks: [{ pyr: ['nn', 'nn', 'nn'] }] }] },
   { name: 'Big Pyramid', hint: 'Ten cans. A strong hit at the base does most of the work.', balls: 5,
     platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }] },
-  { name: 'Side by Side', hint: 'Two small pyramids. You may need one ball for each.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 2.2, stacks: [{ pyr: ['nnn', 'nn', 'n'], x: -0.52 }, { pyr: ['nnn', 'nn', 'n'], x: 0.52 }] }] },
-  { name: 'Tall Stack', hint: 'Three columns, four cans high.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 1.2, stacks: [{ pyr: ['nnn', 'nnn', 'nnn', 'nnn'] }] }] },
-  { name: 'Wide Wall', hint: 'Five across. Clear one side, then the other.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.7, stacks: [{ pyr: ['nnnnn', 'nnnn', 'nnn'] }] }] },
-  { name: 'Two Stands', hint: 'Two stands, two stacks. Angle your throws left and right.', balls: 6,
-    platforms: [{ x: -0.95, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }, { x: 0.95, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }] },
-  { name: 'Grand Pyramid', hint: 'Fifteen cans in a classic pyramid.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.7, stacks: [{ pyr: ['nnnnn', 'nnnn', 'nnn', 'nn', 'n'] }] }] },
-  { name: 'Three in a Row', hint: 'Three small pyramids along one stand.', balls: 7,
-    platforms: [{ x: 0, z: 0, w: 2.6, stacks: [{ pyr: ['nn', 'n'], x: -0.8 }, { pyr: ['nnn', 'nn', 'n'], x: 0 }, { pyr: ['nn', 'n'], x: 0.8 }] }] },
-  { name: 'Long Wall', hint: 'Six across and three high.', balls: 7,
-    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnnnn', 'nnnn'] }] }] },
-  { name: 'Two Pyramids', hint: 'Two big pyramids on two stands.', balls: 7,
-    platforms: [{ x: -1.0, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nnn', 'nn'] }] }, { x: 1.0, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nnn', 'nn'] }] }] },
-  { name: 'Tower Block', hint: 'Four wide and four high. Keep chipping away.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnnn', 'nnnn', 'nnn'] }] }] },
-  { name: 'The Big One', hint: 'Twenty-one cans. Make every ball count.', balls: 8,
-    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnnnn', 'nnnn', 'nnn', 'nn', 'n'] }] }] },
+  // Levels 6–8: first Energy Booster Can, in an easy-to-reach spot
+  { name: 'Side by Side', hint: 'The blue Energy Can sits low in the left pyramid. Hit it!', balls: 6, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 2.2, stacks: [{ pyr: ['nen', 'nn', 'n'], x: -0.52 }, { pyr: ['nnn', 'nn', 'n'], x: 0.52 }] }] },
+  { name: 'Tall Stack', hint: 'The Energy Can is in the second row. Its pulse shakes the whole tower.', balls: 5, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.2, stacks: [{ pyr: ['nnn', 'nen', 'nnn', 'nnn'] }] }] },
+  { name: 'Wide Wall', hint: 'Five across, with an Energy Can in the middle row.', balls: 6, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.7, stacks: [{ pyr: ['nnnnn', 'nnenn', 'nnn'] }] }] },
+  // Levels 9–12: strategic placements
+  { name: 'Two Stands', hint: 'Only the right stand has an Energy Can. The left needs its own throw.', balls: 6, specialCanType: 'energy',
+    platforms: [{ x: -0.95, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }, { x: 0.95, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'en', 'n'] }] }] },
+  { name: 'Grand Pyramid', hint: 'Fifteen cans. The Energy Can is hidden in the middle row.', balls: 6, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.7, stacks: [{ pyr: ['nnnnn', 'nnnn', 'nen', 'nn', 'n'] }] }] },
+  { name: 'Three in a Row', hint: 'The Energy Can tops the middle pyramid. Can its pulse reach the sides?', balls: 7, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 2.6, stacks: [{ pyr: ['nn', 'n'], x: -0.8 }, { pyr: ['nnn', 'nn', 'e'], x: 0 }, { pyr: ['nn', 'n'], x: 0.8 }] }] },
+  { name: 'Long Wall', hint: 'Six across. The Energy Can waits on the top row.', balls: 7, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnnnn', 'nenn'] }] }] },
+  // Levels 13–15: balanced setups that reward hitting the Energy Can at the right moment
+  { name: 'Two Pyramids', hint: 'One Energy Can on top of the left pyramid. Clear the right one yourself.', balls: 7, specialCanType: 'energy',
+    platforms: [{ x: -1.0, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nnn', 'ne'] }] }, { x: 1.0, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nnn', 'nn'] }] }] },
+  { name: 'Tower Block', hint: 'The Energy Can is buried in the third row. Dig down to it, or hit it straight away.', balls: 6, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnnn', 'nnen', 'nnn'] }] }] },
+  { name: 'The Big One', hint: 'Twenty-one cans and one stronger Energy Can. Time your hit for a huge chain.', balls: 8, specialCanType: 'energy', energy: { radius: 1.55 },
+    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnnnn', 'nnen', 'nnn', 'nn', 'n'] }] }] },
 ];
 LEVELS.forEach((l, i) => { l.id = i + 1; l.obj = { type: 'clear' }; });
 
@@ -539,6 +581,62 @@ const Sfx = {
     src.connect(f); f.connect(g); g.connect(this.master); src.start(t, Math.random() * 0.5); src.stop(t + dur + 0.05);
   },
   impactAllowed() { if (!this.ok()) return false; const now = this.ctx.currentTime; if (now - this.lastImpact > 0.2) this.impactBudget = 0; if (this.impactBudget > 10 || now - this.lastImpact < 0.018) return false; this.lastImpact = now; this.impactBudget++; return true; },
+  /* ===== Energy Booster Can sound (synthesized; there is no audio file) =====
+     Three layers, all routed through their own `energyBus` gain into the existing master volume + compressor:
+       1. CHARGE   – starts on the ball hit and lasts exactly as long as the real charge (game's ENERGY.charge)
+       2. RELEASE  – fires on the actual pulse: crackle discharge + clean bass punch + wide filtered whoosh
+       3. AFTERMATH – soft metallic clatter 0.4–0.95 s after the pulse, under the real can collision sounds
+     Whole effect ≈ 1.1 s. `energyVolume` scales it; every voice ends with a smooth exponential fade. */
+  energyVolume: 0.9,
+  _nbuf(ctx) { if (ctx === this.ctx && this.noiseBuf) return this.noiseBuf; if (!this._nbufs) this._nbufs = new Map(); if (!this._nbufs.has(ctx)) { const b = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; this._nbufs.set(ctx, b); } return this._nbufs.get(ctx); },
+  _env(g, t, peak, attack, decay) { attack = Math.max(0.003, attack); decay = Math.max(0.006, decay); g.gain.value = 0.0001; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay); },
+  _osc(ctx, out, t, { type = 'sine', f0, f1, dur, peak, attack = 0.004, filter }) {
+    const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const g = ctx.createGain(); this._env(g, t, peak, attack, dur - attack); let node = o;
+    if (filter) { const f = ctx.createBiquadFilter(); f.type = filter.type; f.frequency.value = filter.f0; if (filter.f1) { f.frequency.setValueAtTime(filter.f0, t); f.frequency.exponentialRampToValueAtTime(filter.f1, t + dur); } f.Q.value = filter.q || 0.7; o.connect(f); node = f; }
+    node.connect(g); g.connect(out); o.start(t); o.stop(t + dur + 0.05); return { osc: o, gain: g };
+  },
+  _noise(ctx, out, t, { dur, peak, attack = 0.004, type = 'bandpass', f0, f1, q = 1, pan }) {
+    const s = ctx.createBufferSource(); s.buffer = this._nbuf(ctx);
+    // Fixed filters get their frequency set directly (no automation event); only sweeps are scheduled
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = f0; f.Q.value = q;
+    if (f1) { f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur); }
+    const g = ctx.createGain(); this._env(g, t, peak, attack, dur - attack); s.connect(f); f.connect(g);
+    if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.setValueAtTime(pan[0], t); p.pan.linearRampToValueAtTime(pan[1], t + dur); g.connect(p); p.connect(out); } else g.connect(out);
+    s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.05);
+  },
+  _bus(ctx, dest) { const g = ctx.createGain(); g.gain.value = this.energyVolume; g.connect(dest); return g; },
+  // Layer 1 — rising high-frequency electric buzz, length = real charge time
+  _energyChargeAt(ctx, dest, t, dur) {
+    const out = this._bus(ctx, dest); dur = clamp(dur, 0.08, 0.3);
+    const buzz = this._osc(ctx, out, t, { type: 'sawtooth', f0: 180, f1: 1500, dur: dur + 0.04, peak: 0.2, attack: dur * 0.85, filter: { type: 'bandpass', f0: 900, f1: 4200, q: 3 } });
+    // 42 Hz tremolo gives it an electrical "buzz" instead of a pure whine
+    const lfo = ctx.createOscillator(); lfo.type = 'square'; lfo.frequency.value = 42; const depth = ctx.createGain(); depth.gain.value = 0.08; lfo.connect(depth); depth.connect(buzz.gain.gain); lfo.start(t); lfo.stop(t + dur + 0.05);
+    this._osc(ctx, out, t, { type: 'triangle', f0: 600, f1: 2400, dur: dur + 0.03, peak: 0.05, attack: dur * 0.9 }); // clean rising tone on top
+    this._noise(ctx, out, t, { dur: dur + 0.03, peak: 0.07, attack: dur * 0.8, type: 'bandpass', f0: 3000, f1: 6500, q: 3 });
+  },
+  // Layers 2 + 3 — discharge, bass punch and whoosh at the pulse; metallic aftermath shortly after
+  _energyReleaseAt(ctx, dest, t) {
+    const out = this._bus(ctx, dest);
+    // 2a. Electric discharge: one bright crack + a few short randomized crackles (kept under 7 kHz, no harsh hiss)
+    this._noise(ctx, out, t, { dur: 0.14, peak: 0.27, attack: 0.002, type: 'bandpass', f0: 3200, f1: 1400, q: 0.9 });
+    for (let i = 0; i < 6; i++) { const dt = 0.015 + Math.random() * 0.17; this._noise(ctx, out, t + dt, { dur: 0.012 + Math.random() * 0.012, peak: 0.09 - i * 0.008, attack: 0.001, type: 'bandpass', f0: 2600 + Math.random() * 2800, q: 6 }); }
+    // 2b. Deep punchy bass: fast pitch drop 120 → 46 Hz, low-passed so it never distorts; a 2nd harmonic keeps it audible on phone speakers
+    this._osc(ctx, out, t, { type: 'sine', f0: 120, f1: 46, dur: 0.34, peak: 0.34, attack: 0.004, filter: { type: 'lowpass', f0: 320, q: 0.7 } });
+    this._osc(ctx, out, t, { type: 'triangle', f0: 260, f1: 100, dur: 0.24, peak: 0.16, attack: 0.004 });
+    // 2c. Wide sci-fi energy wave: filtered noise sweeping down, panned left → right
+    this._noise(ctx, out, t + 0.01, { dur: 0.4, peak: 0.13, attack: 0.03, type: 'bandpass', f0: 2600, f1: 320, q: 1.3, pan: [-0.6, 0.6] });
+    this._osc(ctx, out, t, { type: 'sine', f0: 1500, f1: 260, dur: 0.26, peak: 0.035, attack: 0.006 }); // soft falling tail (low level so it's not a laser)
+    // 3. Metallic aftermath: light can-like clinks that sit under the real collision clanks
+    [0.40, 0.5, 0.63, 0.78].forEach((d, i) => {
+      const k = 1 - i * 0.2;
+      [2150, 3350, 4650].forEach((f, j) => this._osc(ctx, out, t + d, { type: 'sine', f0: f * (0.94 + Math.random() * 0.12), dur: 0.14 + j * 0.03, peak: 0.045 * k / (j + 1), attack: 0.002 }));
+      this._noise(ctx, out, t + d, { dur: 0.02, peak: 0.045 * k, attack: 0.001, type: 'highpass', f0: 2500, q: 0.7 });
+    });
+    this._osc(ctx, out, t + 0.42, { type: 'sine', f0: 640, f1: 600, dur: 0.55, peak: 0.022, attack: 0.003 }); // faint metal ring-out
+  },
+  energyCharge(dur) { if (this.ok()) this._energyChargeAt(this.ctx, this.master, this.ctx.currentTime, dur); },
+  energyRelease() { if (this.ok()) this._energyReleaseAt(this.ctx, this.master, this.ctx.currentTime); },
   clank(v, pitch = 1) {
     if (!this.impactAllowed()) return; const g = clamp(v / 9, 0.04, 1);
     const base = [530, 1290, 2230, 3540];
@@ -651,6 +749,22 @@ function panelCanvas(base, seed) {
   const id = g.getImageData(0, 0, 256, 1024); for (let i = 0; i < id.data.length; i += 4) { const n = (rnd() - 0.5) * 6; id.data[i] += n; id.data[i + 1] += n; id.data[i + 2] += n; } g.putImageData(id, 0, 0);
   g.fillStyle = 'rgba(0,0,0,0.38)'; g.fillRect(0, 0, 3, 1024); g.fillStyle = 'rgba(255,255,255,0.06)'; g.fillRect(3, 0, 2, 1024);
   g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, 512, 256, 2);
+  return c;
+}
+/* Game name painted on the back wall: condensed sports lettering with a worn, sprayed-paint edge. */
+function wallNameCanvas() {
+  const [c, g] = makeCanvas(2048, 720); const rnd = mulberry32(31);
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  g.font = '800 330px "Barlow Condensed", "Arial Narrow", sans-serif';
+  g.fillStyle = 'rgba(244,235,221,0.9)'; g.fillText('CAN CRUSH', 1024, 400);
+  g.font = '800 92px "Barlow Condensed", "Arial Narrow", sans-serif';
+  g.fillStyle = 'rgba(57,198,217,0.85)'; g.fillText('I N D O O R   A R C A D E', 1024, 540);
+  g.fillStyle = 'rgba(244,235,221,0.8)'; g.fillRect(560, 585, 928, 10);
+  // Wear: knock out specks and streaks so it reads as old paint on the wall
+  g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 2600; i++) { g.fillStyle = `rgba(0,0,0,${0.25 + rnd() * 0.75})`; g.beginPath(); g.arc(rnd() * 2048, 60 + rnd() * 600, 1 + rnd() * 5, 0, 7); g.fill(); }
+  for (let i = 0; i < 60; i++) { g.fillStyle = `rgba(0,0,0,${0.15 + rnd() * 0.3})`; g.fillRect(rnd() * 2048, 60 + rnd() * 600, 40 + rnd() * 220, 2 + rnd() * 5); }
+  g.globalCompositeOperation = 'source-over';
   return c;
 }
 /* Shaggy rug with bold zebra-style waves in navy, cream, orange and red. */
@@ -865,6 +979,9 @@ function buildRoom() {
 
   // Practice-booth hint: two slim warm light strips framing the target zone on the back wall
   for (const x of [-2.4, 2.4]) box(0.04, 2.6, 0.02, MAT.ledStrip, x, 2.2, -3.99, { cast: false });
+  // Game name painted high on the back wall, above the stacks
+  const nameMat = new THREE.MeshStandardMaterial({ map: toTex(wallNameCanvas()), transparent: true, opacity: 0.62, roughness: 0.95, envMapIntensity: 0.1, depthWrite: false });
+  const wallName = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 1.55), nameMat); wallName.position.set(0, 2.95, -3.985); wallName.receiveShadow = true; room.add(wallName);
 
   // Minimal background props: a bench in the back-left corner with one basketball and a tennis ball
   box(1.5, 0.06, 0.42, MAT.benchWood, -3.9, 0.46, -3.55);
@@ -1029,21 +1146,57 @@ function createPlatform(p, idx) {
   return plat;
 }
 
+/* ---------- Energy Booster Can model: electric-blue energy-drink can with a glowing lightning bolt ----------
+   Same geometry, lids and droplet bump map as every other can; only the label and a glow (emissive) map differ. */
+const BOLT = [[14, -150], [-62, 22], [-6, 22], [-28, 150], [64, -30], [10, -30], [44, -150]]; // lightning bolt outline, centred
+function drawBolt(g, cx, cy, s) { g.beginPath(); BOLT.forEach(([x, y], i) => (i ? g.lineTo(cx + x * s, cy + y * s) : g.moveTo(cx + x * s, cy + y * s))); g.closePath(); }
+let energyTex = null;
+function energyTextures() {
+  if (energyTex) return energyTex;
+  // Colour map: electric blue body with deep navy shading, icy cyan pinstripes, silver bands, big bolt front and back
+  const c = sodaLabelCanvas(['#0d4fd1'], '#030f33'); const g = c.getContext('2d');
+  const band = g.createLinearGradient(0, 0, 0, 30); band.addColorStop(0, '#e8eef4'); band.addColorStop(0.5, '#9aa7b4'); band.addColorStop(1, '#e8eef4');
+  g.fillStyle = band; g.fillRect(0, 26, 1024, 18); g.fillRect(0, 468, 1024, 18);
+  g.fillStyle = '#7fe9ff'; g.fillRect(0, 50, 1024, 4); g.fillRect(0, 458, 1024, 4);
+  for (const cx of [256, 768]) {
+    g.save(); g.shadowColor = '#39c6d9'; g.shadowBlur = 40; g.fillStyle = 'rgba(120,230,255,0.55)'; drawBolt(g, cx, 252, 1.12); g.fill(); g.restore();
+    g.fillStyle = '#f2fdff'; drawBolt(g, cx, 252, 1.0); g.fill();
+    g.lineWidth = 6; g.strokeStyle = '#0a2a6b'; drawBolt(g, cx, 252, 1.0); g.stroke();
+    g.fillStyle = '#bff4ff'; g.font = '800 30px "Barlow Condensed", "Arial Narrow", sans-serif'; g.textAlign = 'center'; g.fillText('ENERGY', cx, 440);
+  }
+  // Glow map: only the bolt (and a soft halo) emits light, so the bolt can flash while the rest stays metal
+  const [e, eg] = makeCanvas(1024, 512); eg.fillStyle = '#000'; eg.fillRect(0, 0, 1024, 512);
+  for (const cx of [256, 768]) {
+    eg.save(); eg.shadowColor = '#5fe3ff'; eg.shadowBlur = 50; eg.fillStyle = '#2aa9d6'; drawBolt(eg, cx, 252, 1.14); eg.fill(); eg.restore();
+    eg.fillStyle = '#ffffff'; drawBolt(eg, cx, 252, 1.0); eg.fill();
+  }
+  energyTex = { map: toTex(c), glow: toTex(e) }; return energyTex;
+}
+function energyMaterial() {
+  // One material per Energy Can so its glow can pulse, flash and fade independently
+  const t = energyTextures();
+  return new THREE.MeshStandardMaterial({ map: t.map, bumpMap: dropBump(), bumpScale: 2.5, metalness: 0.55, roughness: 0.18, envMapIntensity: 1.35, emissive: new THREE.Color('#46d4ff'), emissiveMap: t.glow, emissiveIntensity: 0.8 });
+}
+
 const _v3 = new THREE.Vector3();
 function syncInterp(b) { b.previousPosition.copy(b.position); b.interpolatedPosition.copy(b.position); b.initPosition.copy(b.position); b.previousQuaternion.copy(b.quaternion); b.interpolatedQuaternion.copy(b.quaternion); }
 function createCan(code, x, y, z, plat, variant) {
   const t = CAN_TYPES[code], sz = SIZES[t.size];
   const mats = canMaterials(Save.data.skin);
-  const side = t.kind === 'heavy' ? mats.heavy : t.kind === 'gold' ? mats.gold : mats.std[variant % mats.std.length];
+  const side = t.kind === 'heavy' ? mats.heavy : t.kind === 'gold' ? mats.gold : t.kind === 'energy' ? energyMaterial() : mats.std[variant % mats.std.length];
   const mesh = new THREE.Mesh(canGeo[t.size], side); mesh.castShadow = mesh.receiveShadow = true;
   for (const gm of [topGeo[t.size], botGeo[t.size]]) { const end = new THREE.Mesh(gm, MAT.lid); end.castShadow = true; end.receiveShadow = true; mesh.add(end); }
   level.group.add(mesh);
   const mass = sz.m * (t.kind === 'heavy' ? HEAVY_MULT : 1);
   const body = new CANNON.Body({ mass, material: PM.can, linearDamping: 0.05, angularDamping: 0.14, allowSleep: true, sleepSpeedLimit: 0.14, sleepTimeLimit: 0.45 });
   body.addShape(new CANNON.Cylinder(sz.r, sz.r, sz.h, 12));
-  body.position.set(x, y, z); body.quaternion.setFromEuler(0, Math.random() * Math.PI * 2, 0);
+  // Random spin for variety; the Energy Can is turned so one of its lightning bolts faces the player
+  const yaw = t.kind === 'energy' ? -Math.PI / 2 + (Math.random() - 0.5) * 0.4 : Math.random() * Math.PI * 2;
+  body.position.set(x, y, z); body.quaternion.setFromEuler(0, yaw, 0);
   syncInterp(body); world.addBody(body); body.sleep();
-  const can = { code, t, sz, mesh, body, plat, knocked: false, tipT: 0, dents: 0, ownGeo: false, supporters: [], onPlatform: false, baseTop: plat.top, spawn: new THREE.Vector3(x, y, z) };
+  const can = { code, t, sz, mesh, body, plat, knocked: false, tipT: 0, dents: 0, ownGeo: false, supporters: [], onPlatform: false, baseTop: plat.top, spawn: new THREE.Vector3(x, y, z),
+    // Energy state lives on the can, so rebuilding the level (restart / next level) resets it
+    energyUsed: false, energyT0: null, energyFired: false, chain: false };
   body.can = can;
   body.addEventListener('collide', (e) => onCanCollide(can, e));
   level.cans.push(can); plat.cans.push(can);
@@ -1131,16 +1284,114 @@ function onBallCollide(e) {
     addShake(clamp((v * bt.mass - 2) * 0.008, 0, 0.06));
     dentCan(can, p, (v - 2.5) * 0.0045 * massF);
     game.hitThisThrow = true;
+    if (can.t.kind === 'energy') triggerEnergy(can, v, p);
   } else if (other === floorBody) { Sfx.bounce(v); if (v > 2.5) FX.dust(p, v); }
   else { Sfx.thud(v * 0.7); if (v > 3) FX.dust(p, v * 0.6); }
 }
 function onCanCollide(can, e) {
-  const o = e.body; if (o.ball) return; if (o.can && o.id < can.body.id) return;
-  const v = Math.abs(e.contact.getImpactVelocityAlongNormal()); if (v < 0.7) return;
+  const o = e.body; if (o.ball) return;
+  const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
+  // Energy chain: a real can-to-can impact with a can already in the chain pulls this can into it.
+  // (Resting contacts that appear when a stack wakes have ~0 impact speed, so they don't count.)
+  if (o.can && game.energyActive && (can.chain || o.can.chain) && v > ENERGY.chainHitSpeed) { can.chain = true; o.can.chain = true; }
+  if (o.can && o.id < can.body.id) return;
+  if (v < 0.7) return;
   const p = contactPoint(e.contact);
   const pitch = can.t.size === 's' ? 1.3 : can.t.size === 'b' ? 0.8 : can.t.kind === 'heavy' ? 0.7 : 1;
   if (o.can) { Sfx.clank(v * 0.6, pitch); if (v > 2.6) dentCan(can, p, (v - 2.4) * 0.003); }
   else { Sfx.thud(v); Sfx.clank(v * 0.35, pitch * 0.9); if (v > 1.4) FX.dust(p, v); if (v > 3.2) dentCan(can, p, (v - 3) * 0.003); }
+}
+
+/* ---------- Energy Booster behaviour ----------
+   1. The ball's real collision with the Energy Can calls triggerEnergy (once per can, per level load).
+   2. The bolt glows brighter for ENERGY.charge seconds, then releaseEnergyPulse runs ONCE:
+      every can within `radius` gets one outward + upward impulse through cannon-es (Body.applyImpulse),
+      scaled by (1 - distance / radius) ^ falloff, so near cans are hit hard and far cans barely move.
+   3. After that it's ordinary rigid-body physics: pushed cans collide with others and chain reactions happen naturally. */
+function triggerEnergy(can, impactSpeed, point) {
+  if (can.energyUsed || impactSpeed < ENERGY.minHitSpeed || game.ended) return;
+  can.energyUsed = true; can.energyT0 = game.simT; can.chain = true;
+  game.energyActive = true;
+  // Charge layer lasts exactly as long as the real charge (slower during slow motion), so the release lands on the pulse
+  if (!can.chargeSoundPlayed) { can.chargeSoundPlayed = true; Sfx.energyCharge(energyCfg().charge / Math.max(0.3, game.timeScale)); }
+  particles.emit(point, 12, { colors: ['#9ff3ff', '#39c6d9', '#ffffff'], speed: 1.2, up: 0.6, life: 0.3, size: 0.035, grav: 1, drag: 3 });
+}
+function updateEnergy() {
+  for (const c of level.cans) {
+    if (c.energyT0 === null || c.energyFired || game.simT - c.energyT0 < energyCfg().charge) continue;
+    c.energyFired = true; // the pulse fires exactly once
+    releaseEnergyPulse(c);
+  }
+}
+function releaseEnergyPulse(src) {
+  const cfg = energyCfg(); const sp = src.body.position; const hits = [];
+  for (const o of level.cans) {
+    if (o === src || o.knocked) continue;
+    const b = o.body, dx = b.position.x - sp.x, dy = b.position.y - sp.y, dz = b.position.z - sp.z;
+    const d = Math.hypot(dx, dy, dz); if (d > cfg.radius) continue;
+    const f = Math.pow(1 - d / cfg.radius, cfg.falloff);          // 1 right next to the booster → 0 at the edge
+    let hx = dx, hz = dz; const hl = Math.hypot(hx, hz);
+    if (hl < 1e-3) { hx = 0; hz = -1; } else { hx /= hl; hz /= hl; }  // straight above/below: push it backward
+    const out = cfg.push * f, up = cfg.lift * f * (dy >= -0.05 ? 1 : 0.45); // cans below get less lift (they're pinned)
+    const m = b.mass; b.wakeUp();
+    // Applied a little above the centre so cans tip and tumble instead of sliding flat
+    b.applyImpulse(new CANNON.Vec3(hx * out * m, up * m, hz * out * m), new CANNON.Vec3(0, o.sz.h * 0.22, 0));
+    const v = b.velocity.length(); if (v > cfg.maxSpeed) b.velocity.scale(cfg.maxSpeed / v, b.velocity);
+    o.chain = true; hits.push({ o, f });
+  }
+  // The booster itself gets a small hop
+  src.body.wakeUp(); src.body.applyImpulse(new CANNON.Vec3(0, cfg.selfLift * src.body.mass, 0));
+  // Feedback
+  if (!src.releaseSoundPlayed) { src.releaseSoundPlayed = true; Sfx.energyRelease(); } // once per activation
+  addShake(0.05);
+  const at = new THREE.Vector3(sp.x, sp.y, sp.z);
+  spawnEnergyFX(at, cfg.radius, hits.sort((a, b) => b.f - a.f).slice(0, 4).map((h) => h.o));
+  particles.emit(at, 34, { colors: ['#9ff3ff', '#39c6d9', '#ffffff', '#1f8fff'], speed: 3, up: 0.8, life: 0.4, size: 0.035, grav: 2, drag: 2.2 });
+  src.mesh.material.emissiveIntensity = 6; // bright cyan flash, fades in animateEnergy
+  return hits.length;
+}
+
+/* Lightweight energy visuals: two expanding rings (one facing the camera, one flat on the stand),
+   a short cyan light flash and up to four flickering arcs to the pushed cans. All pooled and short-lived. */
+const energyFX = [];
+const energyFlash = new THREE.PointLight(0x5fd8ff, 0, 5, 2); scene.add(energyFlash);
+const ringGeo = new THREE.RingGeometry(0.88, 1, 56);
+const arcMat = new THREE.LineBasicMaterial({ color: 0xbff4ff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+function ringMat() { return new THREE.MeshBasicMaterial({ color: 0x47cfff, transparent: true, opacity: 0.7, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }); }
+function spawnEnergyFX(at, radius, targets) {
+  const face = new THREE.Mesh(ringGeo, ringMat()); face.position.copy(at); face.renderOrder = 6; scene.add(face);
+  const flat = new THREE.Mesh(ringGeo, ringMat()); flat.rotation.x = -Math.PI / 2; flat.position.set(at.x, at.y - 0.18, at.z); flat.renderOrder = 6; scene.add(flat);
+  energyFX.push({ type: 'ring', mesh: face, t: 0, dur: 0.38, max: radius * 1.05, billboard: true }, { type: 'ring', mesh: flat, t: 0, dur: 0.45, max: radius * 1.15 });
+  for (const o of targets) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9 * 3), 3));
+    const line = new THREE.Line(geo, arcMat); line.frustumCulled = false; line.renderOrder = 7; scene.add(line);
+    energyFX.push({ type: 'arc', mesh: line, t: 0, dur: 0.24, from: at.clone(), to: o });
+  }
+  energyFlash.position.copy(at); energyFlash.intensity = 14;
+}
+function clearEnergyFX() { for (const f of energyFX) { scene.remove(f.mesh); f.mesh.geometry !== ringGeo && f.mesh.geometry.dispose(); if (f.type === 'ring') f.mesh.material.dispose(); } energyFX.length = 0; energyFlash.intensity = 0; }
+function animateEnergy(now, dt) {
+  // Can glow: idle pulse → charge ramp → flash → dim afterglow
+  for (const c of level.cans) {
+    if (c.t.kind !== 'energy') continue; const mat = c.mesh.material;
+    if (!c.energyUsed) mat.emissiveIntensity = 1.3 + 0.7 * (0.5 + 0.5 * Math.sin(now * 0.005));
+    else if (!c.energyFired) { const k = clamp((game.simT - c.energyT0) / energyCfg().charge, 0, 1); mat.emissiveIntensity = 1 + 3 * k; if (!window.__ccNoRender && Math.random() < 0.6) particles.emit(c.mesh.position, 1, { colors: ['#9ff3ff', '#ffffff'], speed: 0.6, life: 0.18, size: 0.03, grav: 0, drag: 6 }); }
+    else mat.emissiveIntensity = Math.max(0.2, mat.emissiveIntensity - dt * 14);
+  }
+  energyFlash.intensity = Math.max(0, energyFlash.intensity - dt * 60);
+  for (let i = energyFX.length - 1; i >= 0; i--) {
+    const f = energyFX[i]; f.t += dt; const k = Math.min(1, f.t / f.dur);
+    if (f.type === 'ring') {
+      const s = 0.15 + (f.max - 0.15) * (1 - Math.pow(1 - k, 3)); f.mesh.scale.set(s, s, s); f.mesh.material.opacity = 0.75 * (1 - k);
+      if (f.billboard) f.mesh.quaternion.copy(camera.quaternion);
+    } else {
+      // Jagged arc between the booster and a pushed can, re-randomised every frame so it flickers
+      const a = f.from, b = f.to.mesh.position, pos = f.mesh.geometry.attributes.position;
+      for (let j = 0; j <= 8; j++) { const t = j / 8, jit = j === 0 || j === 8 ? 0 : 0.06; pos.setXYZ(j, a.x + (b.x - a.x) * t + (Math.random() - 0.5) * jit, a.y + (b.y - a.y) * t + (Math.random() - 0.5) * jit, a.z + (b.z - a.z) * t + (Math.random() - 0.5) * jit); }
+      pos.needsUpdate = true; f.mesh.visible = Math.random() > 0.15 && k < 1;
+    }
+    if (k >= 1) { scene.remove(f.mesh); if (f.type === 'arc') f.mesh.geometry.dispose(); else f.mesh.material.dispose(); energyFX.splice(i, 1); }
+  }
 }
 
 /* =====================================================================
@@ -1193,7 +1444,8 @@ const game = { state: 'boot', prevState: null, simT: 0, score: 0, ballsLeft: 0, 
   ballDoneT: 0, lastKnockT: 0, timeScale: 1, slowT: 0, levelIdx: 0, isDaily: false, resolveStart: 0, ended: false, comboFlags: {} };
 
 function clearLevel() {
-  for (const c of level.cans) { world.removeBody(c.body); if (c.ownGeo) c.mesh.geometry.dispose(); }
+  for (const c of level.cans) { world.removeBody(c.body); if (c.ownGeo) c.mesh.geometry.dispose(); if (c.t.kind === 'energy') c.mesh.material.dispose(); }
+  clearEnergyFX();
   for (const p of level.platforms) world.removeBody(p.body);
   level.group.traverse((o) => { if (o.geometry && o !== level.group && !SHARED_GEO.has(o.geometry)) o.geometry.dispose(); });
   level.group.clear(); level.cans = []; level.platforms = [];
@@ -1211,7 +1463,7 @@ function startLevel(def, { intro = true } = {}) {
   game.isDaily = def.id === 'daily';
   if (!game.isDaily) { game.levelIdx = def.id - 1; Save.data.lastLevel = def.id; Save.save(); }
   buildLevel(def);
-  Object.assign(game, { score: 0, ballsLeft: def.balls, knocked: 0, total: level.cans.length, throwKnocks: 0, throwsUsed: 0, ended: false, timeScale: 1, slowT: 0, simT: 0 });
+  Object.assign(game, { score: 0, ballsLeft: def.balls, knocked: 0, total: level.cans.length, throwKnocks: 0, throwsUsed: 0, ended: false, timeScale: 1, slowT: 0, simT: 0, energyActive: false, energyChain: 0 });
   world.time = 0;
   showScreen(null); $('#hud').hidden = false; updateHUD();
   spawnBall();
@@ -1219,9 +1471,21 @@ function startLevel(def, { intro = true } = {}) {
   else { cam.introT = 1; }
   game.state = 'intro';
   banner(game.isDaily ? 'Daily challenge' : `Level ${def.id}`, def.name, def.hint);
+  // One-time Energy Can tutorial: only on the first level the player meets one, never again after that.
+  $('#energyTip').hidden = true; clearTimeout(energyTipTimer);
+  if (levelHasEnergy(def) && !Save.data.energyTipSeen) {
+    energyTipTimer = setTimeout(() => {
+      if (!['intro', 'aim', 'resolving'].includes(game.state)) return;
+      $('#energyTip').hidden = false; Save.data.energyTipSeen = true; Save.save();
+      energyTipTimer = setTimeout(() => { $('#energyTip').hidden = true; }, 7000);
+    }, 2600);
+  }
 }
+let energyTipTimer = null;
+function levelHasEnergy(def) { return def.specialCanType === 'energy' || def.platforms.some((p) => p.stacks.some((s) => (s.pyr || s.col || []).join('').includes('e'))); }
 function enterAim() {
   game.state = 'aim'; game.throwKnocks = 0; game.hitThisThrow = false; game.comboFlags = {};
+  game.energyActive = false; game.energyChain = 0; for (const c of level.cans) c.chain = false; // energy bonus is per throw
   if (ball.state !== 'ready') spawnBall();
   $('#aimHint').hidden = Save.data.hintSeen && !(level.def.id === 1 && game.throwsUsed === 0);
 }
@@ -1233,8 +1497,20 @@ function onCanKnocked(can) {
   addScore(can.t.pts);
   popup('+' + can.t.pts, can.mesh.position, can.t.kind === 'gold' ? 'gold' : can.t.kind === 'heavy' ? 'heavy' : '');
   if (can.t.kind === 'gold') { Sfx.coin(); if (game.throwKnocks < 3) callout('BONUS CAN!', 'gold'); }
+  // Energy bonus: for cans pulled into this throw's energy pulse/chain. The multiplier grows with each one
+  // (×1, ×2 … ×5). can.knocked is set once, so no can is ever paid twice.
+  if (game.energyActive && can.chain && can.t.kind !== 'energy') {
+    game.energyChain++; const mult = Math.min(game.energyChain, ENERGY.maxMult), bonus = ENERGY.bonusBase * mult;
+    addScore(bonus);
+    popup(`+${bonus} ⚡×${mult}`, can.mesh.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 'energy');
+    if (game.energyChain === 2) { callout('ENERGY BOOST!', 'energy'); Sfx.chime(1); game.comboFlags.nice = true; game.energyCalloutT = performance.now(); }
+  }
   if (game.throwKnocks === 3 && !game.comboFlags.nice) { game.comboFlags.nice = true; callout('NICE HIT!'); Sfx.chime(1); }
-  if (game.throwKnocks === 6 && !game.comboFlags.chain) { game.comboFlags.chain = true; callout('CHAIN REACTION!', 'sage'); Sfx.chime(2); game.slowT = 0.9; }
+  if (game.throwKnocks === 6 && !game.comboFlags.chain) {
+    game.comboFlags.chain = true; Sfx.chime(2); game.slowT = 0.9;
+    const wait = Math.max(0, 900 - (performance.now() - (game.energyCalloutT || -1e9))); // let ENERGY BOOST! finish first
+    if (wait > 0) setTimeout(() => { if (!game.ended) callout('CHAIN REACTION!', 'sage'); }, wait); else callout('CHAIN REACTION!', 'sage');
+  }
   updateHUD();
 }
 function objectiveMet() { const o = level.def.obj; if (game.knocked >= game.total) return true; return o.type === 'score' && game.score >= o.target; }
@@ -1358,7 +1634,7 @@ function knockChecks(dt) {
 function stepPhysics(dt) {
   const sdt = dt * game.timeScale; game.simT += sdt;
   world.step(FIXED_DT, sdt, 12);
-  wakeChecks(); knockChecks(sdt);
+  updateEnergy(); wakeChecks(); knockChecks(sdt);
 }
 function syncMeshes() {
   for (const c of level.cans) {
@@ -1401,6 +1677,7 @@ function starSVG(on, cls = 'star') { return `<svg class="${cls}${on ? ' on' : ''
 function updateHUD() {
   const d = level.def; if (!d) return;
   $('#hudLevel').textContent = game.isDaily ? '★' : d.id; $('#hudName').textContent = d.name; $('#hudScore').textContent = fmt(game.score);
+  $('#hudEnergy').hidden = !levelHasEnergy(d);
   if (d.obj.type === 'score') { $('#hudObj').textContent = `Score ${fmt(d.obj.target)}`; $('#hudBar').style.width = Math.min(100, (game.score / d.obj.target) * 100) + '%'; $('#hudObjNum').textContent = `${fmt(game.score)}`; }
   else { $('#hudObj').textContent = 'Knock down every can'; $('#hudBar').style.width = (game.total ? (game.knocked / game.total) * 100 : 0) + '%'; $('#hudObjNum').textContent = `${game.knocked}/${game.total}`; }
   const bt = currentBallType(); const wrap = $('#hudBalls'); wrap.innerHTML = '';
@@ -1453,6 +1730,14 @@ function renderSettings() {
   $('#setSound').setAttribute('aria-pressed', s.sound); $('#pauseSound').setAttribute('aria-pressed', s.sound);
   $('#setTraj').setAttribute('aria-pressed', s.trajectory); $('#setShake').setAttribute('aria-pressed', s.shake);
   document.querySelectorAll('#setQuality button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.q === s.quality));
+  updateSoundButtons();
+}
+/* Round speaker buttons: one on the menu, one in the HUD. Both mirror the Sound setting. */
+const ICON_SOUND_ON = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const ICON_SOUND_OFF = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function updateSoundButtons() {
+  const on = !!Save.data.settings.sound;
+  document.querySelectorAll('.sound-btn').forEach((b) => { b.innerHTML = on ? ICON_SOUND_ON : ICON_SOUND_OFF; b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Sound on — tap to mute' : 'Sound off — tap to turn on'); });
 }
 function showResults({ win, ballBonus, perfectBonus, best }) {
   const d = level.def; showScreen('results'); $('#hud').hidden = true; calloutEl.className = ''; $('#banner').classList.remove('show');
@@ -1473,7 +1758,7 @@ function pause() { if (!['aim', 'resolving', 'intro'].includes(game.state)) retu
 function resume() { if (game.state !== 'paused') return; game.state = game.prevState || 'aim'; showScreen(null); lastFrame = performance.now(); }
 function restart() { if (!level.def) return; Sfx.ui(); startLevel(level.def, { intro: false }); }
 function toMenu() {
-  game.state = 'menu'; $('#hud').hidden = true; trajMesh.visible = false; refreshMenu(); showScreen('menu');
+  game.state = 'menu'; $('#hud').hidden = true; trajMesh.visible = false; refreshMenu(); updateSoundButtons(); showScreen('menu');
   if (!level.def || level.def.id !== 1 || game.ended || game.throwsUsed > 0) { buildLevel(LEVELS[0]); spawnBall(); }
 }
 function goBack() { Sfx.ui(); if (returnTo === 'pause') { showScreen('pause'); } else toMenu(); }
@@ -1489,6 +1774,8 @@ document.addEventListener('click', (e) => {
     case 'howto': Sfx.ui(); openSub('howto'); break;
     case 'back': goBack(); break;
     case 'pause': Sfx.ui(); pause(); break;
+    case 'energy-ok': clearTimeout(energyTipTimer); $('#energyTip').hidden = true; break;
+    case 'sound': toggleSetting('sound'); toast(Save.data.settings.sound ? 'Sound on' : 'Sound off'); break;
     case 'resume': Sfx.ui(); resume(); break;
     case 'restart': case 'retry': restart(); break;
     case 'menu': Sfx.ui(); toMenu(); break;
@@ -1536,7 +1823,7 @@ function tick(dt) {
     if (st === 'resolving') updateResolve(dt);
     else if ((st === 'victory' || st === 'failure') && ball.body) updateResolve(dt);
   }
-  syncMeshes();
+  syncMeshes(); animateEnergy(performance.now(), dt);
 
   // Ball appear / fade
   if (ball.mesh) {
@@ -1585,7 +1872,7 @@ async function boot() {
 boot().catch((e) => { console.error(e); fatal('Something went wrong while building the scene: ' + (e && e.message ? e.message : e)); });
 
 // Small debug/test hook (used for automated checks; harmless in play).
-window.__cc = { game, level, world, Save, LEVELS, startLevel, cam, camera, ball, advance(sec) { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) tick(1 / 60); return game.state; }, throwAt(yaw, pitch) { if (game.state !== 'aim') return false; aim.yaw = yaw; aim.pitch = pitch; aim.pull = 0.5; aim.active = true; aim.id = -1; aim.sx = 0; aim.sy = 0; aim.x = 100; aim.y = 100; endAim({ pointerId: -1 }, false); return true; } };
+window.__cc = { game, level, world, Save, LEVELS, startLevel, cam, camera, ball, Sfx, advance(sec) { const n = Math.round(sec * 60); for (let i = 0; i < n; i++) tick(1 / 60); return game.state; }, throwAt(yaw, pitch) { if (game.state !== 'aim') return false; aim.yaw = yaw; aim.pitch = pitch; aim.pull = 0.5; aim.active = true; aim.id = -1; aim.sx = 0; aim.sy = 0; aim.x = 100; aim.y = 100; endAim({ pointerId: -1 }, false); return true; } };
 </script>
 </body>
 </html>
