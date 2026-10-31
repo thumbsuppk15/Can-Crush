@@ -250,6 +250,11 @@ html,body{font:500 15px/22px var(--text)}
 .energy-tip b{font:800 19px/22px var(--display);letter-spacing:.02em}
 .energy-tip p{margin:2px 0 0;font:800 15px/19px var(--display);letter-spacing:.03em;color:#1668d8}
 @media (max-width:560px){.energy-tip{top:calc(var(--gt) + 96px)}}
+/* Spring Can: HUD chip, tip text colour, callout and score pop */
+.spring-chip{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#c4602f;color:#f4ebdd;flex:none}
+.spring-chip.big{width:42px;height:42px}
+.energy-tip.spring p{color:#b8552a}
+#callout.spring{color:#d86a38} .pop.spring{color:#c4602f;font-size:22px}
 .pop{font:800 26px/1 var(--display);color:var(--warm)} .pop.gold{font-size:30px} .pop.combo{color:#3f7a52;font-size:22px}
 .stat-list dd{font:800 18px/22px var(--display)}
 .stat-list .total dd{font:800 30px/30px var(--display)}
@@ -416,7 +421,7 @@ body[data-mode] #pause .panel{border-top:6px solid var(--mline)}
 <!-- ============ HUD ============ -->
 <div id="hud" hidden>
   <div class="hud-top">
-    <div class="pill hud-level"><span class="mode-chip" id="hudMode">EASY</span><span class="label">Level</span><b id="hudLevel">1</b><span class="hud-name" id="hudName"></span><span class="energy-chip" id="hudEnergy" title="This level has an Energy Booster Can" hidden><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 4 14h7l-1 8 10-12h-7z" fill="currentColor"/></svg></span></div>
+    <div class="pill hud-level"><span class="mode-chip" id="hudMode">EASY</span><span class="label">Level</span><b id="hudLevel">1</b><span class="hud-name" id="hudName"></span><span class="spring-chip" id="hudSpring" title="This level has a Spring Can" hidden><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12L6 9h12L6 14h12L6 19h12" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="energy-chip" id="hudEnergy" title="This level has an Energy Booster Can" hidden><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 4 14h7l-1 8 10-12h-7z" fill="currentColor"/></svg></span></div>
     <div class="pill hud-score"><span class="label">Score</span><b id="hudScore">0</b></div>
     <button class="icon-btn sound-btn" data-action="sound" aria-label="Sound" aria-pressed="true"></button>
     <button class="icon-btn" data-action="pause" aria-label="Pause">
@@ -426,6 +431,11 @@ body[data-mode] #pause .panel{border-top:6px solid var(--mline)}
   <div class="pill hud-obj"><span id="hudObj">Knock down every can</span><div class="bar"><i id="hudBar"></i></div><span class="num" id="hudObjNum">0/0</span></div>
   <div class="pill hud-balls"><div id="hudBalls" style="display:flex;gap:6px"></div><span class="hud-ballname" id="hudBallName">Rubber</span></div>
   <div id="aimHint" hidden>Drag back to aim · release to throw</div>
+  <div id="springTip" class="energy-tip spring" role="status" hidden>
+    <span class="spring-chip big"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12L6 9h12L6 14h12L6 19h12" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <div><b>Spring Can</b><p>Hit the Spring Can to bounce it into nearby cans!</p></div>
+    <button class="btn small" data-action="spring-ok">Got it</button>
+  </div>
   <div id="energyTip" class="energy-tip" role="status" hidden>
     <span class="energy-chip big"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2 4 14h7l-1 8 10-12h-7z" fill="currentColor"/></svg></span>
     <div><b>Energy Booster Can</b><p>HIT THE ENERGY CAN ⚡ UNLEASH A POWERFUL BLAST!</p></div>
@@ -516,7 +526,7 @@ body[data-mode] #pause .panel{border-top:6px solid var(--mline)}
       <li><div class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="12" width="6" height="8" rx="1.5" fill="#7e9474"/><rect x="14" y="12" width="6" height="8" rx="1.5" fill="#7e9474" transform="rotate(25 17 16)"/><rect x="9" y="4" width="6" height="8" rx="1.5" fill="#d4a640"/></svg></div><div><h3>Clear the stand</h3><p>A can counts once it falls off or tips over. Knock several with one ball for combo points.</p></div></li>
       <li><div class="glyph"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.6 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="#d4a640"/></svg></div><div><h3>Next level</h3><p>Knock down every can to complete the level and unlock the next one. Balls you don't use add bonus points.</p></div></li>
     </ol>
-    <div class="legend"><span><i style="background:#ec3b5c"></i>Each can · 100 points</span><span><i style="background:#F29A50"></i>3+ cans with one ball · combo bonus</span><span><i style="background:linear-gradient(160deg,#2a8cff,#0a2f7a)"></i>Energy Booster Can ⚡ · hit it to release an energy pulse (bonus ×1 to ×5)</span></div>
+    <div class="legend"><span><i style="background:#ec3b5c"></i>Each can · 100 points</span><span><i style="background:#F29A50"></i>3+ cans with one ball · combo bonus</span><span><i style="background:linear-gradient(160deg,#2a8cff,#0a2f7a)"></i>Energy Booster Can ⚡ · hit it to release an energy pulse (bonus ×1 to ×5)</span><span><i style="background:#c4602f;box-shadow:inset 0 -5px 0 #d9dcdf"></i>Spring Can · hit it to bounce it into what sits above (+75 per chain can)</span><span><i style="background:#6e4329"></i>Wooden planks · knock out what holds them up</span></div>
     <p class="sub" style="margin:14px 0 0;font-size:13px">Keyboard: Esc pauses, R restarts the level.</p>
   </div>
 </section>
@@ -586,6 +596,19 @@ const CAN_TYPES = {
   h: { size: 'n', kind: 'heavy', pts: 250 }, H: { size: 'b', kind: 'heavy', pts: 250 },
   g: { size: 'n', kind: 'gold', pts: 500 }, G: { size: 's', kind: 'gold', pts: 500 },
   e: { size: 'n', kind: 'energy', pts: 100 }, // Energy Booster Can: releases one radial energy pulse when the ball hits it
+  p: { size: 'n', kind: 'spring', pts: 100 }, // Spring Can: one upward physics hop when the ball hits it
+};
+/* Spring Can tuning (a single impulse through cannon-es; everything after is ordinary physics). */
+const SPRING = {
+  massMult: 1.4,        // a bit heavier than a normal can so its hop carries into what sits on it
+  minHitSpeed: 1.2,     // ball impact speed (m/s) needed to trigger it
+  windup: 0.07,         // seconds of visible coil compression before the impulse
+  upSpeed: 3.6,         // upward speed added (m/s) → rises about 0.65 m
+  sideSpeed: 0.9,       // horizontal speed added, along the throw and toward the other cans
+  maxSide: 1.5,         // cap on horizontal speed right after launch
+  maxSpeed: 4.5,        // cap on total speed right after launch
+  chainBonus: 75,       // bonus per can knocked down by the spring's chain
+  chainHitSpeed: 0.8,   // can-to-can contact speed that pulls a can into the chain
 };
 const HEAVY_MULT = 4.5;
 /* Energy Booster tuning. The pulse is a set of real impulses through cannon-es; nothing is scripted.
@@ -670,80 +693,140 @@ const mover = (x, z, w, h, amp, period, phase = 0) => ({ x, z, w, h, y: 0, move:
    finished by knocking the base out, while hitting the top rows directly needs a shot through the narrow slot. */
 const hangGate = (cx, gap, z, y, h, span) => [glass(cx - gap / 2 - span / 2, z, span, h, y), glass(cx + gap / 2 + span / 2, z, span, h, y)];
 
-/* MEDIUM — 15 new levels: obstacles, gaps, different heights, small/heavy cans and Energy Cans. */
+/* MEDIUM — "Test Your Skills": 15 structure-based levels (see LEVEL_DESIGN.md for the full design notes).
+   Platforms use `build: (S) => …` with the structure builder: S.can / S.col / S.row / S.pyr / S.ring / S.plank.
+   Coordinates are relative to the stand's centre and top; each call returns the height of what it built. */
 const MEDIUM_LEVELS = [
-  { name: 'Glass Guard', hint: 'A low glass guard protects the base. Aim a little higher.', balls: 4,
-    platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }], obstacles: [glass(0, 0.5, 1.5, 1.12)] },
-  { name: 'Window Seat', hint: 'Throw through the gap in the glass.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }], obstacles: gate(0, 0.62, 0.55, 2.1, 0.85) },
-  { name: 'Split Level', hint: 'Two stands at different heights and depths.', balls: 5,
-    platforms: [{ x: -0.6, z: 0, top: 0.85, w: 1.0, stacks: [{ pyr: ['nnn', 'nn'] }] }, { x: 0.7, z: -0.5, top: 1.45, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }] },
-  { name: 'Side Windows', hint: 'A glass pillar stands in the middle. Angle around it.', balls: 5,
-    platforms: [{ x: -0.62, z: 0, w: 0.5, d: 0.5, stacks: [{ col: ['nnnn'] }] }, { x: 0.62, z: 0, w: 0.5, d: 0.5, stacks: [{ col: ['nnnn'] }] }], obstacles: [glass(0, 0.5, 0.7, 2.2)] },
-  { name: 'Power Wall', hint: 'Fifteen cans and an Energy Can behind a low guard.', balls: 5, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 1.8, stacks: [{ pyr: ['nnnnn', 'nnenn', 'nnnnn'] }] }], obstacles: [glass(0, 0.5, 1.9, 1.12)] },
-  { name: 'Small Fry', hint: 'Small cans are harder to hit but worth 150 each.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 1.3, stacks: [{ pyr: ['sssss', 'ssss', 'sss', 'ss', 's'] }] }] },
-  { name: 'Over the Fence', hint: 'The fence hides most of the bottom row. Clear the top, then aim just over the glass.', balls: 5,
-    platforms: [{ x: 0, z: -0.4, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }], obstacles: [glass(0, 0.25, 1.6, 1.2)] },
-  { name: 'Sliding Door', hint: 'A glass door slides back and forth. Time your throw.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 1.6, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }], obstacles: [mover(0, 0.55, 0.9, 2.0, 0.75, 3.2)] },
-  { name: 'Heavy Duty', hint: 'Heavy cans at the corners, an Energy Can in the middle.', balls: 5, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 1.6, stacks: [{ pyr: ['hnnh', 'nen', 'nn', 'n'] }] }] },
-  { name: 'Gold Window', hint: 'A gold can sits behind a narrow window. Side stacks are open.', balls: 6,
-    platforms: [{ x: 0, z: -0.3, w: 0.45, d: 0.45, stacks: [{ col: ['nng'] }] }, { x: -1.25, z: 0, w: 0.8, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 1.25, z: 0, w: 0.8, stacks: [{ pyr: ['nn', 'n'] }] }],
-    obstacles: gate(0, 0.42, 0.3, 2.2, 0.55) },
-  { name: 'Staircase', hint: 'Three stands, each one higher and further back.', balls: 5,
-    platforms: [{ x: -0.9, z: 0, top: 0.85, w: 0.8, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 0, z: -0.3, top: 1.25, w: 0.8, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 0.9, z: -0.6, top: 1.65, w: 0.8, stacks: [{ pyr: ['nn', 'n'] }] }] },
-  { name: 'Moving Target', hint: 'The stand slides behind a low fence. Lead your throw.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.0, move: { amp: 0.9, period: 3.6 }, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }], obstacles: [glass(0, 0.75, 2.8, 1.1)] },
-  { name: 'Keyhole', hint: 'Hanging glass with a keyhole. The Energy Can is right behind it, or knock the base out from below.', balls: 6, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnenn', 'nnnn'] }] }], obstacles: hangGate(0, 0.42, 0.5, 1.4, 1.2, 0.9) },
-  { name: 'Double Doors', hint: 'Two glass doors slide open and shut.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnnn', 'nnn', 'nn'] }] }], obstacles: [mover(-0.45, 0.55, 0.75, 2.0, 0.45, 2.8, 0), mover(0.45, 0.7, 0.75, 2.0, 0.45, 2.8, Math.PI)] },
-  { name: 'Medium Finale', hint: 'Two pyramids, a glass post and a sliding door. One Energy Can.', balls: 8, specialCanType: 'energy',
-    platforms: [{ x: -0.85, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }, { x: 0.85, z: 0, w: 1.2, stacks: [{ pyr: ['nnnn', 'nen', 'nn', 'n'] }] }],
-    obstacles: [glass(0, 0.5, 0.35, 2.2), mover(0, 0.9, 0.8, 1.6, 1.0, 3.6)] },
+  { name: 'Bridge Builder', hint: 'A pyramid on a plank bridge. Knock out a leg and the whole bridge comes down.', balls: 4,
+    platforms: [{ x: 0, z: 0, w: 1.4, build: (S) => { const t = S.col('nn', -0.4, 0); S.col('nn', 0.4, 0); const p = S.plank(0, 0, 1.15, t); S.pyr(['nnn', 'nn', 'n'], 0, 0, p); } }] },
+  { name: 'Archipelago', hint: 'Four islands at two heights. One clean shot each.', balls: 7,
+    platforms: [
+      { x: -1.2, z: 0.05, top: 0.85, w: 0.62, d: 0.5, build: (S) => S.pyr(['nn', 'n'], 0, 0) },
+      { x: -0.42, z: -0.45, top: 1.3, w: 0.62, d: 0.5, build: (S) => S.pyr(['nn', 'n'], 0, 0) },
+      { x: 0.42, z: -0.45, top: 1.3, w: 0.62, d: 0.5, build: (S) => S.pyr(['nn', 'n'], 0, 0) },
+      { x: 1.2, z: 0.05, top: 0.85, w: 0.62, d: 0.5, build: (S) => S.pyr(['nn', 'n'], 0, 0) }] },
+  { name: 'Zigzag Wall', hint: 'Three interlocked zigzag rows. Topple one and it runs along the wall.', balls: 6,
+    platforms: [{ x: 0, z: 0, w: 1.9, d: 1.0, build: (S) => {
+      for (let i = 0; i < 7; i++) S.can('n', -0.81 + i * 0.27, i % 2 ? -0.15 : 0.15);
+      for (let i = 0; i < 6; i++) S.can('n', -0.675 + i * 0.27, 0, 0.4415);
+      for (let i = 0; i < 5; i++) S.can('s', -0.54 + i * 0.27, i % 2 ? -0.12 : 0.12, 0.883);
+    } }] },
+  { name: 'Spring Loaded', hint: 'The pyramid rests on a Spring Can. Hit it and launch the lot!', balls: 4, specialCanType: 'spring',
+    platforms: [{ x: 0, z: 0, w: 1.4, build: (S) => { S.can('n', -0.42, 0); S.can('p', 0, 0); const t = S.can('n', 0.42, 0); const p = S.plank(0, 0, 1.15, t); S.pyr(['nnnn', 'nnn', 'nn'], 0, 0, p); } }] },
+  { name: 'Energy Core', hint: 'A crown of cans guards the Energy Can. The front is open: aim straight in.', balls: 4, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.3, d: 1.1, build: (S) => { S.ring('nnnnn', 0, 0, 0.32, 0, 60); S.ring('nnnnn', 0, 0, 0.32, 0.4415, 60); const t = S.can('e', 0, 0); S.can('g', 0, 0, t); } }] },
+  { name: 'Seesaw', hint: 'A plank balanced on one can. Tip it, and the other side flies.', balls: 4,
+    platforms: [{ x: 0, z: 0, w: 1.6, build: (S) => { const t = S.can('n', 0, 0); const p = S.plank(0, 0, 1.4, t); S.col('nn', -0.55, 0, p); S.col('nn', 0.55, 0, p); S.can('g', 0, 0, p); } }] },
+  { name: 'Glass Gallery', hint: 'Two windows, two towers, and a prize above the glass.', balls: 5,
+    platforms: [
+      { x: -0.62, z: 0, top: 0.9, w: 0.5, d: 0.5, build: (S) => S.col('nnn', 0, 0) },
+      { x: 0.62, z: 0, top: 0.9, w: 0.5, d: 0.5, build: (S) => S.col('nnn', 0, 0) },
+      { x: 0, z: -0.45, top: 1.75, w: 0.7, d: 0.5, build: (S) => S.pyr(['nn', 'n'], 0, 0) }],
+    obstacles: [glass(-1.085, 0.55, 0.43, 1.75), glass(0, 0.55, 0.74, 1.75), glass(1.085, 0.55, 0.43, 1.75)] },
+  { name: 'Plank Tower', hint: 'Three tiers of planks. Find the bottom leg and watch it fold.', balls: 4,
+    platforms: [{ x: 0, z: 0, w: 1.2, build: (S) => {
+      let t = S.col('n', -0.3, 0); S.col('n', 0.3, 0); let p = S.plank(0, 0, 0.9, t);
+      t = S.col('n', -0.25, 0, p); S.col('n', 0.25, 0, p); p = S.plank(0, 0, 0.8, t);
+      t = S.col('n', -0.2, 0, p); S.col('n', 0.2, 0, p); p = S.plank(0, 0, 0.66, t);
+      S.pyr(['nn', 'g'], 0, 0, p);
+    } }] },
+  { name: 'Arch & Door', hint: 'A gold can hides under the arch. Time the sliding door.', balls: 5,
+    platforms: [{ x: 0, z: 0, w: 1.4, build: (S) => { const t = S.col('nnn', -0.45, 0); S.col('nnn', 0.45, 0); const p = S.plank(0, 0, 1.2, t); S.pyr(['nnnn', 'nnn'], 0, 0, p); S.can('g', 0, 0); } }],
+    obstacles: [mover(0, 0.55, 0.9, 2.2, 0.7, 3.0)] },
+  { name: 'Moving Bridge', hint: 'The whole bridge slides. Lead your throw onto a leg.', balls: 5,
+    platforms: [{ x: 0, z: 0, w: 1.2, move: { amp: 0.9, period: 4.2 }, build: (S) => { const t = S.col('nn', -0.38, 0); S.col('nn', 0.38, 0); const p = S.plank(0, 0, 1.0, t); S.pyr(['nnn', 'nn'], 0, 0, p); } }] },
+  { name: 'Pop-Up Shelf', hint: 'A Spring Can waits under the shelf. Pop it into the plank.', balls: 4, specialCanType: 'spring',
+    platforms: [{ x: 0, z: 0, w: 1.3, build: (S) => { const t = S.col('nnn', -0.45, 0); S.col('nnn', 0.45, 0); S.col('np', 0, 0); const p = S.plank(0, 0, 1.2, t); S.pyr(['nnnn', 'nnn', 'nn'], 0, 0, p); } }] },
+  { name: 'Energy Grid', hint: 'The Energy Can sits in the middle of the grid, just above a small can. Aim high.', balls: 5, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 1.2, d: 1.1, build: (S) => {
+      for (const x of [-0.3, 0, 0.3]) for (const z of [-0.3, 0, 0.3]) {
+        if (x === 0 && z === 0) S.can('e', 0, 0); else if (x === 0 && z === 0.3) S.can('s', 0, 0.3); else S.col(x !== 0 && z !== 0 ? 'nn' : 'n', x, z);
+      }
+    } }] },
+  { name: 'Hidden Support', hint: 'You cannot hit the shelf behind the glass. Knock out what holds it up.', balls: 4,
+    platforms: [
+      { x: -0.55, z: 0, top: 0.9, w: 0.5, d: 0.5, build: (S) => { const t = S.col('nn', 0, 0); const p = S.plank(0.55, 0, 1.35, t); S.pyr(['nnn', 'nn'], 0.55, 0, p); } },
+      { x: 0.6, z: 0, top: 1.783, w: 0.5, d: 0.5 }],
+    obstacles: [glass(0, 0.45, 1.0, 1.0, 1.75)] },
+  { name: 'Energy Relay', hint: 'Fire the core, topple the tower, flatten the pyramid.', balls: 5, specialCanType: 'energy',
+    platforms: [{ x: 0, z: 0, w: 2.5, d: 0.9, build: (S) => { S.can('e', -0.85, 0); S.ring('nnn', -0.85, 0, 0.3, 0, 90); S.col('nnnn', 0, -0.05); S.pyr(['nnn', 'nn', 'n'], 0.85, 0); } }] },
+  { name: 'The Arcade', hint: 'Spring shelf, gold bridge behind a door, Energy core. Use everything.', balls: 8, specialCanType: ['spring', 'energy'],
+    platforms: [
+      { x: -1.2, z: 0, top: 0.9, w: 0.95, d: 0.6, build: (S) => { S.can('n', -0.3, 0); S.can('p', 0, 0); const t = S.can('n', 0.3, 0); const p = S.plank(0, 0, 0.9, t); S.pyr(['nnn', 'nn'], 0, 0, p); } },
+      { x: 0, z: -0.45, top: 1.25, w: 1.0, d: 0.6, build: (S) => { const t = S.col('nn', -0.32, 0); S.col('nn', 0.32, 0); const p = S.plank(0, 0, 0.9, t); S.pyr(['nn', 'g'], 0, 0, p); } },
+      { x: 1.2, z: 0, top: 0.9, w: 0.95, d: 0.95, build: (S) => { S.can('e', 0, 0); S.ring('nnn', 0, 0, 0.3, 0, 90); S.ring('nnn', 0, 0, 0.3, 0.4415, 90); } }],
+    obstacles: [mover(0, 0.45, 0.7, 2.0, 0.55, 3.2)] },
 ];
 
-/* DIFFICULT — 15 new levels for experienced players: tight gaps, moving gates, mixed heights, small targets. */
+/* DIFFICULT — "Challenge Yourself": 15 advanced structure puzzles. */
 const DIFFICULT_LEVELS = [
-  { name: 'Tight Window', hint: 'Two tall columns behind a gap barely wider than a ball. Precision only.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 0.8, stacks: [{ col: ['nnnnn', 'nnnnn'], spacing: 0.27 }] }], obstacles: gate(0, 0.36, 0.5, 2.3, 0.9) },
-  { name: 'Small & Heavy', hint: 'Heavy bases, tiny cans on top.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 1.0, stacks: [{ col: ['hsss', 'hsss', 'hsss'], spacing: 0.28 }] }] },
-  { name: 'Far Shelf', hint: 'A deep shelf behind a tall fence. Lob it in.', balls: 5,
-    platforms: [{ x: 0, z: -1.7, top: 1.35, w: 1.3, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }], obstacles: [glass(0, -1.2, 1.4, 1.4)] },
-  { name: 'Revolving Gate', hint: 'A panel slides across the only opening. Wait for it.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 0.8, stacks: [{ col: ['nnnn', 'nnnn'], spacing: 0.27 }] }], obstacles: [...gate(0, 0.5, 0.55, 2.3, 0.9), mover(0, 0.45, 0.42, 2.3, 0.45, 2.4)] },
-  { name: 'Three Heights', hint: 'Three small stacks, three heights, three depths.', balls: 5,
-    platforms: [{ x: -1.05, z: 0.2, top: 0.8, w: 0.7, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 0, z: -0.8, top: 1.6, w: 0.7, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 1.05, z: 0, top: 1.2, w: 0.7, stacks: [{ pyr: ['nn', 'n'] }] }],
-    obstacles: [glass(0, 0.4, 0.5, 1.5)] },
-  { name: 'Glass Maze', hint: 'Low glass on the left, hanging glass on the right.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.7, stacks: [{ pyr: ['nnnnn', 'nnnn', 'nnn', 'nn', 'n'] }] }], obstacles: [glass(-0.48, 0.5, 0.95, 1.2), glass(0.48, 0.7, 0.95, 0.6, 1.75)] },
-  { name: 'Hidden Charge', hint: 'A glass post hides most of the Energy Can. Only its left edge is open.', balls: 7, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 1.8, stacks: [{ pyr: ['nnnnn', 'nnenn', 'nnnnn'] }] }], obstacles: [glass(0.12, 0.45, 0.2, 2.3)] },
-  { name: 'Moving Fortress', hint: 'The stand slides one way, the door the other.', balls: 6,
-    platforms: [{ x: 0, z: 0, w: 1.2, move: { amp: 0.8, period: 3.4 }, stacks: [{ pyr: ['nnn', 'nnn', 'nn'] }] }], obstacles: [mover(0, 0.7, 0.7, 1.9, 0.8, 3.4, Math.PI)] },
-  { name: 'Tiny Tower', hint: 'Twelve small cans in two tall columns on a narrow stand.', balls: 5,
-    platforms: [{ x: 0, z: 0, w: 0.5, d: 0.5, stacks: [{ col: ['ssssss', 'ssssss'], spacing: 0.2 }] }] },
-  { name: 'Over & Under', hint: 'Left: shoot under the hanging glass. Right: lob over the fence.', balls: 6,
-    platforms: [{ x: -0.85, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }, { x: 0.85, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }],
-    obstacles: [glass(-0.85, 0.5, 1.1, 1.0, 1.55), glass(0.85, 0.5, 1.1, 1.15)] },
-  { name: 'Heavy Metal', hint: 'Heavy cans everywhere. The Energy Can sits on top.', balls: 6, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 1.6, stacks: [{ pyr: ['hnhnh', 'nhnh', 'hnh', 'nh', 'e'] }] }] },
-  { name: 'Twin Gates', hint: 'Two pyramids under hanging gates. Gold on top: thread the slot or bring the base down.', balls: 6,
-    platforms: [{ x: -0.9, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'g'] }] }, { x: 0.9, z: 0, w: 1.0, stacks: [{ pyr: ['nnn', 'nn', 'g'] }] }],
-    obstacles: [...hangGate(-0.9, 0.36, 0.5, 1.48, 1.1, 0.45), ...hangGate(0.9, 0.36, 0.5, 1.48, 1.1, 0.45)] },
-  { name: 'Crossfire', hint: 'A low stand in front, a moving one behind, and a door in between.', balls: 7,
-    platforms: [{ x: 0, z: 0.45, top: 0.8, w: 1.0, stacks: [{ pyr: ['nn', 'n'] }] }, { x: 0, z: -1.0, top: 1.5, w: 1.0, move: { amp: 1.0, period: 4 }, stacks: [{ pyr: ['nnn', 'nn', 'n'] }] }],
-    obstacles: [glass(0, 1.0, 1.2, 0.95), mover(0, 1.3, 0.6, 2.3, 0.9, 2.6)] },
-  { name: 'The Vault', hint: 'Hanging glass seals the vault. One narrow slot lines up with the Energy Can.', balls: 7, specialCanType: 'energy',
-    platforms: [{ x: 0, z: 0, w: 2.0, stacks: [{ pyr: ['nnnnnn', 'nnnnn', 'nnen', 'nnn', 'nn', 'n'] }] }], obstacles: hangGate(0.133, 0.36, 0.5, 1.48, 1.6, 0.95) },
-  { name: 'Grand Master', hint: 'Everything at once. Plan every throw.', balls: 8, specialCanType: 'energy',
-    platforms: [{ x: -1.1, z: -0.2, top: 1.1, w: 0.8, move: { amp: 0.45, period: 3 }, stacks: [{ pyr: ['nn', 'n'] }] },
-      { x: 0, z: -0.6, top: 1.3, w: 1.2, stacks: [{ pyr: ['nnnn', 'nen', 'nn', 'n'] }] }, { x: 1.15, z: 0, w: 0.8, stacks: [{ pyr: ['hh', 'n'] }] }],
-    obstacles: [...hangGate(0, 0.4, 0.25, 1.78, 1.2, 0.6), mover(0.6, 0.8, 0.6, 1.8, 0.5, 2.8)] },
+  { name: 'Fortress', hint: 'Two golds behind a heavy wall. Breach the front first.', balls: 8,
+    platforms: [{ x: 0, z: 0, w: 1.5, d: 1.1, build: (S) => { S.pyr(['hhh', 'hh'], 0, 0.3); S.col('gg', 0, -0.05); S.row('nnn', 0, -0.42); } }],
+    obstacles: [glass(-0.98, 0.62, 0.3, 1.7), glass(0.98, 0.62, 0.3, 1.7)] },
+  { name: 'Stilts', hint: 'Small cans high on four stilts. The back stilts hide behind the front.', balls: 6,
+    platforms: [{ x: 0, z: 0, w: 1.3, d: 0.9, build: (S) => { let t; for (const x of [-0.42, 0.42]) for (const z of [-0.18, 0.18]) t = S.col('nnn', x, z); const p = S.plank(0, 0, 1.14, t, 0.62); S.pyr(['sss', 'ss', 's'], 0, 0, p); } }] },
+  { name: 'Depth Charge', hint: 'Three structures in a line. Clear them front to back.', balls: 9,
+    platforms: [
+      { x: 0, z: 0.45, top: 0.75, w: 1.2, d: 0.4, build: (S) => S.row('nnnn', 0, 0) },
+      { x: 0, z: -0.35, top: 1.15, w: 1.1, d: 0.5, build: (S) => S.pyr(['nnn', 'nn'], 0, 0) },
+      { x: 0, z: -1.2, top: 1.6, w: 1.0, d: 0.5, build: (S) => { const t = S.col('nn', -0.3, 0); S.col('nn', 0.3, 0); const p = S.plank(0, 0, 0.85, t); S.pyr(['nn', 'g'], 0, 0, p); } }] },
+  { name: 'Needle Point', hint: 'Thread the narrow slot, or skim the ball under the glass into the base.', balls: 5,
+    platforms: [{ x: 0.2, z: 0, w: 0.5, d: 0.5, build: (S) => {
+      let t = S.col('s', -0.15, 0); S.col('s', 0.15, 0); let p = S.plank(0, 0, 0.46, t, 0.3);
+      t = S.col('s', -0.12, 0, p); S.col('s', 0.12, 0, p); p = S.plank(0, 0, 0.4, t, 0.3);
+      t = S.col('s', -0.1, 0, p); S.col('s', 0.1, 0, p); p = S.plank(0, 0, 0.32, t, 0.3);
+      S.can('G', 0, 0, p);
+    } }],
+    obstacles: hangGate(0.2, 0.34, 0.5, 1.45, 1.4, 1.1) },
+  { name: 'Counterweight', hint: 'The left stack hides behind glass. Upset the balance.', balls: 5,
+    platforms: [{ x: 0, z: 0, w: 1.8, d: 0.6, build: (S) => { const t = S.col('nn', 0, 0); const p = S.plank(0, 0, 1.6, t); S.col('nnn', -0.62, 0, p); S.can('h', 0.42, 0, p); } }],
+    obstacles: [glass(-0.62, 0.42, 0.62, 1.45, 1.92)] },
+  { name: 'Spring Cascade', hint: 'Three shelves climb to the right. The Spring Can starts the cascade.', balls: 6, specialCanType: 'spring',
+    platforms: [{ x: 0, z: 0, w: 2.4, d: 0.6, build: (S) => {
+      let t = S.can('n', -1.02, 0); S.can('p', -0.75, 0); S.can('n', -0.48, 0); let p = S.plank(-0.75, 0, 0.82, t); S.row('nn', -0.75, 0, p);
+      t = S.col('nn', -0.2, 0); S.col('nn', 0.2, 0); p = S.plank(0, 0, 0.62, t); S.row('nn', 0, 0, p);
+      t = S.col('nnn', 0.48, 0); S.col('nnn', 0.96, 0); p = S.plank(0.72, 0, 0.7, t); S.row('nn', 0.72, 0, p);
+    } }] },
+  { name: 'Twin Cores', hint: 'Two shielded Energy cores, too far apart to chain. Two precise shots.', balls: 6, specialCanType: 'energy',
+    platforms: [
+      { x: -1.05, z: 0.1, top: 0.9, w: 0.9, d: 0.9, build: (S) => { S.can('e', 0, 0); S.ring('nnn', 0, 0, 0.3, 0, 90); S.ring('nnn', 0, 0, 0.3, 0.4415, 90); S.row('ss', 0, 0.32); } },
+      { x: 1.05, z: -0.55, top: 1.4, w: 0.9, d: 0.9, build: (S) => { S.can('e', 0, 0); S.ring('nnn', 0, 0, 0.3, 0, 90); S.ring('nnn', 0, 0, 0.3, 0.4415, 90); S.row('ss', 0, 0.32); } }],
+    obstacles: [glass(0, 0.25, 0.45, 2.4)] },
+  { name: 'Crossing Gates', hint: 'Two doors slide past each other. The gap opens only for a moment.', balls: 7,
+    platforms: [{ x: 0, z: 0, w: 1.4, build: (S) => { const t = S.col('nn', -0.45, 0); S.col('nn', 0.45, 0); const p = S.plank(0, 0, 1.2, t); S.pyr(['nnnn', 'nnn', 'nn'], 0, 0, p); S.can('g', 0, 0); } }],
+    obstacles: [mover(-0.3, 0.6, 0.8, 2.2, 0.7, 2.6, 0), mover(0.3, 0.8, 0.8, 2.2, 0.7, 2.6, Math.PI)] },
+  { name: 'Skyline', hint: 'Six pillars, six heights, twelve tiny cans. No second chances.', balls: 8,
+    platforms: [0.85, 1.35, 1.85, 1.55, 1.1, 1.95].map((top, i) => ({ x: -1.25 + i * 0.5, z: 0, top, w: 0.36, d: 0.36, build: (S) => S.col(i === 5 ? 'sG' : 'ss', 0, 0) })) },
+  { name: 'House of Cards', hint: 'Two bridges hold a beam that holds the crown. Which leg brings it all down?', balls: 6,
+    platforms: [{ x: 0, z: 0, w: 1.8, d: 0.6, build: (S) => {
+      const t = S.can('n', -0.75, 0); S.can('n', -0.25, 0); S.can('n', 0.25, 0); S.can('n', 0.75, 0);
+      S.plank(-0.5, 0, 0.75, t); const p1 = S.plank(0.5, 0, 0.75, t);
+      const t2 = S.can('n', -0.5, 0, p1); S.can('n', 0.5, 0, p1); const p2 = S.plank(0, 0, 1.25, t2);
+      S.pyr(['nnn', 'nn', 'g'], 0, 0, p2);
+    } }] },
+  { name: 'Moving Fortress', hint: 'A moving bridge on a Spring Can, an Energy can on top, a fence in front.', balls: 6, specialCanType: ['spring', 'energy'],
+    platforms: [{ x: 0, z: 0, w: 1.3, move: { amp: 0.7, period: 3.6 }, build: (S) => { S.can('n', -0.45, 0); S.can('p', 0, 0); const t = S.can('n', 0.45, 0); const p = S.plank(0, 0, 1.15, t); S.pyr(['nnnn', 'nen'], 0, 0, p); } }],
+    obstacles: [glass(0, 0.65, 2.9, 1.15)] },
+  { name: 'The Gauntlet', hint: 'Three walls, three gaps, one straight line to the tower.', balls: 6,
+    platforms: [{ x: 0.6, z: -0.9, w: 0.5, d: 0.5, build: (S) => S.col('nnnnG', 0, 0) }],
+    obstacles: [...gate(0.294, 0.44, 1.6, 2.6, 0.8), ...gate(0.416, 0.44, 0.6, 2.6, 0.8), ...gate(0.527, 0.44, -0.3, 2.8, 0.8)] },
+  { name: 'Chain Reactor', hint: 'Spring the shelf, drop the tower onto the core, then fire it.', balls: 6, specialCanType: ['spring', 'energy'],
+    platforms: [{ x: 0, z: 0, w: 2.5, d: 0.7, build: (S) => {
+      S.can('n', -1.0, 0); S.can('p', -0.73, 0); const t = S.can('n', -0.46, 0); const p = S.plank(-0.73, 0, 0.8, t); S.col('nnn', -0.73, 0, p);
+      S.col('nnnnn', 0, 0);
+      S.can('e', 0.85, 0); S.ring('nnn', 0.85, 0, 0.3, 0, 90);
+    } }] },
+  { name: 'The Vault', hint: 'The gold sits on a shelf behind glass. The slot lines up with its only support.', balls: 5,
+    platforms: [
+      { x: -0.4, z: 0, top: 0.9, w: 0.45, d: 0.45, build: (S) => { const t = S.col('nnn', 0, 0); const p = S.plank(0.4, 0, 1.1, t); S.pyr(['ggg', 'nn', 'g'], 0.4, 0, p); } },
+      { x: 0.45, z: 0, top: 2.2245, w: 0.4, d: 0.45 }],
+    obstacles: hangGate(-0.4, 0.36, 0.5, 0.95, 2.1, 1.0) },
+  { name: 'The Machine', hint: 'Spring shelf, hidden counterweight, Energy core and a sliding door. Plan every ball.', balls: 9, specialCanType: ['spring', 'energy'],
+    platforms: [
+      { x: -1.25, z: 0, top: 0.85, w: 0.85, d: 0.6, build: (S) => { S.can('n', -0.27, 0); S.can('p', 0, 0); const t = S.can('n', 0.27, 0); const p = S.plank(0, 0, 0.8, t); S.pyr(['nn', 'n'], 0, 0, p); } },
+      { x: 0, z: -0.5, w: 1.7, d: 0.6, build: (S) => { const t = S.col('nn', 0, 0); const p = S.plank(0, 0, 1.5, t); S.col('nnn', -0.58, 0, p); S.can('h', 0.4, 0, p); } },
+      { x: 1.25, z: 0, top: 0.85, w: 0.9, d: 0.9, build: (S) => { S.can('e', 0, 0); S.ring('nnn', 0, 0, 0.3, 0, 90); S.ring('nnn', 0, 0, 0.3, 0.4415, 90); } }],
+    obstacles: [mover(0, 0.55, 0.8, 2.0, 0.6, 3.0), glass(-0.58, -0.08, 0.62, 1.4, 1.95)] },
 ];
 
 /* All modes in one table. Each level knows its mode and its 1-based number within that mode. */
@@ -897,6 +980,12 @@ const Sfx = {
     this._osc(ctx, out, t + 0.42, { type: 'sine', f0: 640, f1: 600, dur: 0.55, peak: 0.022, attack: 0.003 }); // faint metal ring-out
   },
   energyCharge(dur) { if (this.ok()) this._energyChargeAt(this.ctx, this.master, this.ctx.currentTime, dur); },
+  boing() { // Spring Can: rising springy wobble plus a soft metal twang
+    this.tone(140, 0.45, { freqEnd: 560, type: 'triangle', gain: 0.24 });
+    this.tone(280, 0.32, { freqEnd: 940, type: 'sine', gain: 0.08, delay: 0.03 });
+    this.tone(620, 0.25, { freqEnd: 300, type: 'sine', gain: 0.06, delay: 0.2 });
+    this.noise(0.05, { type: 'bandpass', freq: 2200, q: 2, gain: 0.07 });
+  },
   energyRelease() { if (this.ok()) this._energyReleaseAt(this.ctx, this.master, this.ctx.currentTime); },
   clank(v, pitch = 1) {
     if (!this.impactAllowed()) return; const g = clamp(v / 9, 0.04, 1);
@@ -1132,6 +1221,7 @@ function buildMaterials() {
   MAT.plinth = ['#1d2232', '#2a2a30', '#6e1f28', '#23324a'].map((c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.75, envMapIntensity: 0.3 }));
   MAT.brass = new THREE.MeshStandardMaterial({ color: '#c9a35a', metalness: 1, roughness: 0.32 });
   MAT.steel = new THREE.MeshStandardMaterial({ color: '#9c9d98', metalness: 1, roughness: 0.4 });
+  MAT.springMetal = new THREE.MeshStandardMaterial({ color: '#d9dcdf', metalness: 1, roughness: 0.24, envMapIntensity: 1.5 });
   MAT.lid = new THREE.MeshStandardMaterial({ color: '#e6e8ec', metalness: 1, roughness: 0.22, envMapIntensity: 1.4, side: THREE.DoubleSide });
   MAT.rug = new THREE.MeshStandardMaterial({ map: toTex(rugCanvas()), roughness: 1, envMapIntensity: 0.2 });
   MAT.print = new THREE.MeshStandardMaterial({ map: toTex(printCanvas()), roughness: 0.9 });
@@ -1353,7 +1443,7 @@ function banner(eyebrow, title, hint) { const b = $('#banner'); $('#bannerEyebro
 /* =====================================================================
    8. ENTITIES — platforms, cans, ball
    ===================================================================== */
-const level = { group: new THREE.Group(), cans: [], platforms: [], obstacles: [], def: null };
+const level = { group: new THREE.Group(), cans: [], platforms: [], obstacles: [], planks: [], def: null };
 scene.add(level.group);
 /* Can mesh = coloured body (open cylinder, dentable) + silver tapered neck/lid and base (lathes). */
 const canGeo = {}; const topGeo = {}; const botGeo = {}; const SHARED_GEO = new Set();
@@ -1446,6 +1536,56 @@ function createObstacle(o) {
 /* Where a sliding obstacle's centre is at physics time t (shared by the preStep driver and test tools) */
 function obstacleX(ob, t) { const m = ob.def.move; return m ? ob.x0 + m.amp * Math.sin((Math.PI * 2 / m.period) * t + (m.phase || 0)) : ob.x0; }
 
+/* ---------- Spring Can model: terracotta/cream can standing on a visible steel coil ---------- */
+const springGeoCache = {};
+class HelixCurve extends THREE.Curve {
+  constructor(radius, height, turns) { super(); this.radius = radius; this.height = height; this.turns = turns; }
+  getPoint(t, target = new THREE.Vector3()) { const a = t * this.turns * Math.PI * 2; return target.set(Math.cos(a) * this.radius, -t * this.height, Math.sin(a) * this.radius); }
+}
+function springGeometry(size) {
+  if (springGeoCache[size]) return springGeoCache[size];
+  const s = SIZES[size], r = s.r, hh = s.h / 2;
+  const coilH = s.h * 0.2; // bottom fifth of the can is the spring
+  const bodyBot = -hh + coilH + s.botH, bodyTop = hh - s.topH;
+  const g = {
+    coilH,
+    body: new THREE.CylinderGeometry(r, r, bodyTop - bodyBot, 40, 4, true).translate(0, (bodyTop + bodyBot) / 2, 0),
+    coil: new THREE.TubeGeometry(new HelixCurve(r * 0.7, coilH - 0.014, 4.5), 120, 0.011, 8, false),
+    foot: new THREE.CylinderGeometry(r * 0.86, r * 0.9, 0.014, 32),
+    ring: new THREE.TorusGeometry(r * 1.005, 0.006, 6, 40),
+  };
+  Object.values(g).forEach((v) => { if (v && v.isBufferGeometry) SHARED_GEO.add(v); });
+  springGeoCache[size] = g; return g;
+}
+let springLabelTex = null;
+function springLabelTexture() {
+  if (springLabelTex) return springLabelTex;
+  const c = sodaLabelCanvas(['#c4602f'], '#6e2a12'); const g = c.getContext('2d');
+  g.fillStyle = '#f4ebdd'; g.fillRect(0, 40, 1024, 14); g.fillRect(0, 458, 1024, 14);
+  for (const cx of [256, 768]) {
+    g.fillStyle = '#f4ebdd'; g.beginPath(); g.ellipse(cx, 256, 92, 150, 0, 0, 7); g.fill();
+    g.strokeStyle = '#c4602f'; g.lineWidth = 14; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath();
+    for (let i = 0; i <= 6; i++) { const y = 150 + i * 36; g.lineTo(cx + (i % 2 ? 46 : -46), y); } g.stroke();
+    g.fillStyle = '#c4602f'; g.font = '800 34px "Barlow Condensed", "Arial Narrow", sans-serif'; g.textAlign = 'center'; g.fillText('SPRING', cx, 408);
+  }
+  springLabelTex = toTex(c); return springLabelTex;
+}
+function springMaterial() { // one per Spring Can so its highlight can pulse until it is used
+  return new THREE.MeshStandardMaterial({ map: springLabelTexture(), bumpMap: dropBump(), bumpScale: 2.5, metalness: 0.3, roughness: 0.24, envMapIntensity: 1.1, emissive: new THREE.Color('#ff8a4a'), emissiveIntensity: 0.15 });
+}
+function buildSpringCanMesh(size) {
+  const g = springGeometry(size), s = SIZES[size], hh = s.h / 2;
+  const mesh = new THREE.Mesh(g.body, springMaterial()); mesh.castShadow = mesh.receiveShadow = true;
+  const top = new THREE.Mesh(topGeo[size], MAT.lid); top.castShadow = true; mesh.add(top);
+  const cap = new THREE.Mesh(botGeo[size], MAT.lid); cap.position.y = g.coilH; cap.castShadow = true; mesh.add(cap);
+  const ring = new THREE.Mesh(g.ring, MAT.springMetal); ring.rotation.x = Math.PI / 2; ring.position.y = hh - s.topH - 0.004; mesh.add(ring);
+  const coil = new THREE.Group(); coil.position.y = -hh + g.coilH; mesh.add(coil); // scaling coil.y compresses / extends the spring
+  const helix = new THREE.Mesh(g.coil, MAT.springMetal); helix.castShadow = true; coil.add(helix);
+  const foot = new THREE.Mesh(g.foot, MAT.springMetal); foot.position.y = -g.coilH + 0.007; foot.castShadow = true; foot.receiveShadow = true; coil.add(foot);
+  mesh.userData.coil = coil;
+  return mesh;
+}
+
 /* ---------- Energy Booster Can model: electric-blue energy-drink can with a glowing lightning bolt ----------
    Same geometry, lids and droplet bump map as every other can; only the label and a glow (emissive) map differ. */
 const BOLT = [[14, -150], [-62, 22], [-6, 22], [-28, 150], [64, -30], [10, -30], [44, -150]]; // lightning bolt outline, centred
@@ -1484,19 +1624,24 @@ function createCan(code, x, y, z, plat, variant) {
   const t = CAN_TYPES[code], sz = SIZES[t.size];
   const mats = canMaterials(Save.data.skin);
   const side = t.kind === 'heavy' ? mats.heavy : t.kind === 'gold' ? mats.gold : t.kind === 'energy' ? energyMaterial() : mats.std[variant % mats.std.length];
-  const mesh = new THREE.Mesh(canGeo[t.size], side); mesh.castShadow = mesh.receiveShadow = true;
-  for (const gm of [topGeo[t.size], botGeo[t.size]]) { const end = new THREE.Mesh(gm, MAT.lid); end.castShadow = true; end.receiveShadow = true; mesh.add(end); }
+  let mesh;
+  if (t.kind === 'spring') mesh = buildSpringCanMesh(t.size);
+  else {
+    mesh = new THREE.Mesh(canGeo[t.size], side); mesh.castShadow = mesh.receiveShadow = true;
+    for (const gm of [topGeo[t.size], botGeo[t.size]]) { const end = new THREE.Mesh(gm, MAT.lid); end.castShadow = true; end.receiveShadow = true; mesh.add(end); }
+  }
   level.group.add(mesh);
-  const mass = sz.m * (t.kind === 'heavy' ? HEAVY_MULT : 1);
+  const mass = sz.m * (t.kind === 'heavy' ? HEAVY_MULT : t.kind === 'spring' ? SPRING.massMult : 1);
   const body = new CANNON.Body({ mass, material: PM.can, linearDamping: 0.05, angularDamping: 0.14, allowSleep: true, sleepSpeedLimit: 0.14, sleepTimeLimit: 0.45 });
   body.addShape(new CANNON.Cylinder(sz.r, sz.r, sz.h, 12));
   // Random spin for variety; the Energy Can is turned so one of its lightning bolts faces the player
-  const yaw = t.kind === 'energy' ? -Math.PI / 2 + (Math.random() - 0.5) * 0.4 : Math.random() * Math.PI * 2;
+  const yaw = t.kind === 'energy' || t.kind === 'spring' ? -Math.PI / 2 + (Math.random() - 0.5) * 0.4 : Math.random() * Math.PI * 2; // special cans face the player
   body.position.set(x, y, z); body.quaternion.setFromEuler(0, yaw, 0);
   syncInterp(body); world.addBody(body); body.sleep();
   const can = { code, t, sz, mesh, body, plat, knocked: false, tipT: 0, dents: 0, ownGeo: false, supporters: [], onPlatform: false, baseTop: plat.top, spawn: new THREE.Vector3(x, y, z),
     // Energy state lives on the can, so rebuilding the level (restart / next level) resets it
-    energyUsed: false, energyT0: null, energyFired: false, chain: false };
+    energyUsed: false, energyT0: null, energyFired: false, chain: false,
+    springUsed: false, springT0: null, springFired: false, springDir: null };
   body.can = can;
   body.addEventListener('collide', (e) => onCanCollide(can, e));
   level.cans.push(can); plat.cans.push(can);
@@ -1504,21 +1649,64 @@ function createCan(code, x, y, z, plat, variant) {
   return can;
 }
 
+/* ---------- Planks: real wooden boards (dynamic rigid bodies) used to build bridges, shelves, seesaws and towers ----------
+   They start asleep like cans, wake when whatever holds them up moves, and never need to be knocked down themselves. */
+const PLANK_DENSITY = 0.3; // kg per metre of a 0.32 m wide board
+function createPlank(x, y, z, w, d, h, plat) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), MAT.walnut); mesh.castShadow = mesh.receiveShadow = true; level.group.add(mesh);
+  const body = new CANNON.Body({ mass: Math.max(0.12, PLANK_DENSITY * w * (d / 0.32)), material: PM.wood, linearDamping: 0.05, angularDamping: 0.2, allowSleep: true, sleepSpeedLimit: 0.12, sleepTimeLimit: 0.5 });
+  body.addShape(new CANNON.Box(new CANNON.Vec3(w / 2, h / 2, d / 2))); body.position.set(x, y, z);
+  syncInterp(body); world.addBody(body); body.sleep();
+  const pk = { isPlank: true, body, mesh, plat, w, d, h, sz: { r: 0.1, h }, knocked: false, supporters: [] };
+  body.plank = pk; mesh.position.set(x, y, z);
+  level.planks.push(pk); plat.cans.push(pk); // riding a moving stand works the same as for cans
+  return pk;
+}
+/* Footprint of a can (circle) or plank (rectangle) for support detection */
+function bottomOf(o) { return o.body.position.y - (o.isPlank ? o.h : o.sz.h) / 2; }
+function topOf(o) { return o.body.position.y + (o.isPlank ? o.h : o.sz.h) / 2; }
+function restsOn(upper, lower) {
+  const u = upper.body.position, l = lower.body.position;
+  if (!upper.isPlank && !lower.isPlank) return Math.hypot(l.x - u.x, l.z - u.z) < lower.sz.r + upper.sz.r - 0.005;
+  if (!upper.isPlank && lower.isPlank) return Math.abs(u.x - l.x) < lower.w / 2 + upper.sz.r * 0.5 && Math.abs(u.z - l.z) < lower.d / 2 + upper.sz.r * 0.5;
+  if (upper.isPlank && !lower.isPlank) return Math.abs(u.x - l.x) < upper.w / 2 + lower.sz.r * 0.5 && Math.abs(u.z - l.z) < upper.d / 2 + lower.sz.r * 0.5;
+  return Math.abs(u.x - l.x) < (upper.w + lower.w) / 2 && Math.abs(u.z - l.z) < (upper.d + lower.d) / 2;
+}
 function computeSupports() {
-  const cans = level.cans;
-  for (const c of cans) {
-    const bottom = c.body.position.y - c.sz.h / 2;
-    if (Math.abs(bottom - c.plat.top) < 0.012) c.onPlatform = true;
-    for (const o of cans) {
-      if (o === c) continue; const topO = o.body.position.y + o.sz.h / 2;
-      if (Math.abs(topO - bottom) < 0.012 && Math.hypot(o.body.position.x - c.body.position.x, o.body.position.z - c.body.position.z) < o.sz.r + c.sz.r - 0.005) c.supporters.push(o);
-    }
+  const all = [...level.cans, ...level.planks];
+  for (const c of all) {
+    const bottom = bottomOf(c);
+    if (!c.isPlank && Math.abs(bottom - c.plat.top) < 0.012) c.onPlatform = true;
+    for (const o of all) { if (o !== c && Math.abs(topOf(o) - bottom) < 0.012 && restsOn(c, o)) c.supporters.push(o); }
   }
+}
+/* ---------- Structure builder used by Medium/Difficult level data ----------
+   Coordinates are relative to the stand's centre (x, z) and its top surface (y = 0). Every method returns
+   the height of the top of what it built, so pieces can be stacked: legs → plank → pyramid, and so on. */
+function makeBuilder(p, plat) {
+  let variant = 0;
+  const S = {
+    can(code, x, z, y = 0) { const sz = SIZES[CAN_TYPES[code].size]; createCan(code, p.x + x, plat.top + y + sz.h / 2 + VGAP, p.z + z, plat, variant++); return y + sz.h + VGAP; },
+    col(codes, x, z, y = 0) { for (const c of codes) y = S.can(c, x, z, y); return y; },
+    row(codes, x, z, y = 0) {
+      const chars = [...codes]; const ws = chars.map((c) => SIZES[CAN_TYPES[c].size].r * 2 + GAP); let cx = x - ws.reduce((a, b) => a + b, 0) / 2, h = 0;
+      chars.forEach((c, i) => { cx += ws[i] / 2; S.can(c, cx, z, y); cx += ws[i] / 2; h = Math.max(h, SIZES[CAN_TYPES[c].size].h); });
+      return y + h + VGAP;
+    },
+    pyr(rows, x, z, y = 0) { for (const r of rows) y = S.row(r, x, z, y); return y; },
+    ring(codes, x, z, radius, y = 0, startDeg = 60) { // cans on a circle, starting at startDeg (0° = facing the player), evenly spaced
+      const chars = [...codes]; const step = (360 - startDeg * 2) / Math.max(1, chars.length - 1); let top = y;
+      chars.forEach((c, i) => { const a = (startDeg + i * step) * Math.PI / 180; top = Math.max(top, S.can(c, x + Math.sin(a) * radius, z + Math.cos(a) * radius, y)); });
+      return top;
+    },
+    plank(x, z, w, y = 0, d = 0.32, h = 0.06) { createPlank(p.x + x, plat.top + y + h / 2 + VGAP, p.z + z, w, d, h, plat); return y + h + VGAP; },
+  };
+  return S;
 }
 
 /* Dents: push nearby side vertices inward around the contact point (localized, cheap, capped per can). */
 function dentCan(can, worldPoint, amount) {
-  if (amount < 0.004 || can.dents >= 3 || Save.data.settings.quality === 'low') return;
+  if (amount < 0.004 || can.dents >= 3 || Save.data.settings.quality === 'low' || can.t.kind === 'spring') return;
   if (!can.ownGeo) { can.mesh.geometry = can.mesh.geometry.clone(); can.ownGeo = true; }
   const geo = can.mesh.geometry; can.mesh.updateMatrixWorld(); const local = can.mesh.worldToLocal(_v3.copy(worldPoint));
   const pos = geo.attributes.position; const bh = can.sz.bodyH / 2 - 0.003, by = can.sz.bodyY, R = can.sz.r * 0.95; amount = Math.min(amount, can.sz.r * 0.18);
@@ -1585,6 +1773,7 @@ function onBallCollide(e) {
     dentCan(can, p, (v - 2.5) * 0.0045 * massF);
     game.hitThisThrow = true;
     if (can.t.kind === 'energy') triggerEnergy(can, v, p);
+    if (can.t.kind === 'spring') triggerSpring(can, v, p);
   } else if (other === floorBody) { Sfx.bounce(v); if (v > 2.5) FX.dust(p, v); }
   else { Sfx.thud(v * 0.7); if (v > 3) FX.dust(p, v * 0.6); }
 }
@@ -1593,13 +1782,62 @@ function onCanCollide(can, e) {
   const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
   // Energy chain: a real can-to-can impact with a can already in the chain pulls this can into it.
   // (Resting contacts that appear when a stack wakes have ~0 impact speed, so they don't count.)
-  if (o.can && game.energyActive && (can.chain || o.can.chain) && v > ENERGY.chainHitSpeed) { can.chain = true; o.can.chain = true; }
+  if (o.can && (game.energyActive || game.springActive) && (can.chain || o.can.chain) && v > ENERGY.chainHitSpeed) { can.chain = true; o.can.chain = true; }
+  // A plank thrown by the chain passes the chain on to the cans it hits
+  if (o.plank && (game.energyActive || game.springActive) && o.plank.chain && v > SPRING.chainHitSpeed) can.chain = true;
+  if (o.plank && (game.energyActive || game.springActive) && can.chain && v > SPRING.chainHitSpeed) o.plank.chain = true;
   if (o.can && o.id < can.body.id) return;
   if (v < 0.7) return;
   const p = contactPoint(e.contact);
   const pitch = can.t.size === 's' ? 1.3 : can.t.size === 'b' ? 0.8 : can.t.kind === 'heavy' ? 0.7 : 1;
   if (o.can) { Sfx.clank(v * 0.6, pitch); if (v > 2.6) dentCan(can, p, (v - 2.4) * 0.003); }
   else { Sfx.thud(v); Sfx.clank(v * 0.35, pitch * 0.9); if (v > 1.4) FX.dust(p, v); if (v > 3.2) dentCan(can, p, (v - 3) * 0.003); }
+}
+
+/* ---------- Spring Can behaviour ----------
+   The ball's real collision calls triggerSpring (once per can per level load). After SPRING.windup seconds of visible
+   coil compression, updateSprings applies ONE impulse (Body.applyImpulse): mostly up, plus a little along the throw
+   and toward the remaining cans. Whatever sits on the spring (a plank, a can) is lifted by ordinary contact physics. */
+function triggerSpring(can, impactSpeed, point) {
+  if (can.springUsed || impactSpeed < SPRING.minHitSpeed || game.ended) return;
+  can.springUsed = true; can.springT0 = game.simT; can.chain = true; game.springActive = true;
+  const bv = ball.body ? ball.body.velocity : { x: 0, z: -1 };
+  const dir = new THREE.Vector2(bv.x, bv.z); if (dir.lengthSq() < 1e-4) dir.set(0, -1); dir.normalize();
+  const standing = level.cans.filter((c) => c !== can && !c.knocked);
+  if (standing.length) {
+    const cx = standing.reduce((a, c) => a + c.body.position.x, 0) / standing.length, cz = standing.reduce((a, c) => a + c.body.position.z, 0) / standing.length;
+    const to = new THREE.Vector2(cx - can.body.position.x, cz - can.body.position.z);
+    if (to.lengthSq() > 1e-4) dir.multiplyScalar(0.6).add(to.normalize().multiplyScalar(0.4)).normalize();
+  }
+  can.springDir = dir; Sfx.boing();
+  particles.emit(point, 14, { colors: ['#f4ebdd', '#e8a07a', '#ffffff'], speed: 1.4, up: 1.2, life: 0.45, size: 0.04, grav: 3, drag: 2.5 });
+}
+function updateSprings() {
+  for (const c of level.cans) {
+    if (c.springT0 === null || c.springFired || game.simT - c.springT0 < SPRING.windup) continue;
+    c.springFired = true; // the impulse fires exactly once
+    const b = c.body; b.wakeUp(); const m = b.mass, d = c.springDir;
+    b.applyImpulse(new CANNON.Vec3(d.x * SPRING.sideSpeed * m, SPRING.upSpeed * m, d.y * SPRING.sideSpeed * m));
+    b.angularVelocity.set(b.angularVelocity.x + d.y * 3, b.angularVelocity.y + (Math.random() - 0.5) * 2, b.angularVelocity.z - d.x * 3);
+    const hs = Math.hypot(b.velocity.x, b.velocity.z); if (hs > SPRING.maxSide) { b.velocity.x *= SPRING.maxSide / hs; b.velocity.z *= SPRING.maxSide / hs; }
+    const sp = b.velocity.length(); if (sp > SPRING.maxSpeed) b.velocity.scale(SPRING.maxSpeed / sp, b.velocity);
+    for (const o of [...level.cans, ...level.planks]) if (o !== c && o.body.sleepState === SLEEPING && o.body.position.distanceTo(b.position) < 0.75) { o.body.wakeUp(); if (o.isPlank) o.chain = true; }
+    FX.dust(new THREE.Vector3(b.position.x, b.position.y - c.sz.h / 2, b.position.z), 3);
+  }
+}
+/* Coil compress → release → damped wobble, timed to the impulse; pulsing highlight until used; light trail in flight */
+function animateSprings(now) {
+  for (const c of level.cans) {
+    if (c.t.kind !== 'spring') continue; const coil = c.mesh.userData.coil; if (!coil) continue;
+    if (!c.springUsed) { c.mesh.material.emissiveIntensity = 0.1 + 0.1 * (0.5 + 0.5 * Math.sin(now * 0.004)); coil.scale.y = 1; continue; }
+    c.mesh.material.emissiveIntensity = Math.max(0, c.mesh.material.emissiveIntensity - 0.02);
+    const e = game.simT - c.springT0; let s = 1;
+    if (e < SPRING.windup) s = 1 - 0.55 * (e / SPRING.windup);
+    else if (e < SPRING.windup + 0.09) s = 0.45 + 0.95 * ((e - SPRING.windup) / 0.09);
+    else if (e < 0.8) { const k = e - SPRING.windup - 0.09; s = 1 + 0.4 * Math.exp(-k * 7) * Math.cos(k * 28); }
+    coil.scale.y = s;
+    if (c.springFired && e < 0.8 && c.body.velocity.length() > 1 && !window.__ccNoRender) particles.emit(c.mesh.position, 1, { colors: ['#f4ebdd', '#e8a07a'], speed: 0.15, life: 0.35, size: 0.05, grav: 0, drag: 3, alpha: 0.55 });
+  }
 }
 
 /* ---------- Energy Booster behaviour ----------
@@ -1745,19 +1983,21 @@ const game = { state: 'boot', prevState: null, simT: 0, score: 0, ballsLeft: 0, 
   ballDoneT: 0, lastKnockT: 0, timeScale: 1, slowT: 0, levelIdx: 0, isDaily: false, resolveStart: 0, ended: false, comboFlags: {} };
 
 function clearLevel() {
-  for (const c of level.cans) { world.removeBody(c.body); if (c.ownGeo) c.mesh.geometry.dispose(); if (c.t.kind === 'energy') c.mesh.material.dispose(); }
+  for (const c of level.cans) { world.removeBody(c.body); if (c.ownGeo) c.mesh.geometry.dispose(); if (c.t.kind === 'energy' || c.t.kind === 'spring') c.mesh.material.dispose(); }
   clearEnergyFX();
   for (const p of level.platforms) world.removeBody(p.body);
   for (const o of level.obstacles) world.removeBody(o.body);
+  for (const pk of level.planks) world.removeBody(pk.body);
   level.group.traverse((o) => { if (o.geometry && o !== level.group && !SHARED_GEO.has(o.geometry)) o.geometry.dispose(); });
-  level.group.clear(); level.cans = []; level.platforms = []; level.obstacles = [];
+  level.group.clear(); level.cans = []; level.platforms = []; level.obstacles = []; level.planks = [];
   removeBall(true); particles && particles.clear(); fxLayer.innerHTML = '';
 }
 function buildLevel(def) {
   clearLevel(); level.def = def;
   def.platforms.forEach((p, i) => {
     const plat = createPlatform(p, i); let v = (i * 3) % 5;
-    for (const st of p.stacks) for (const c of stackLayout(st)) createCan(c.code, p.x + c.x, plat.top + c.y, p.z + c.z, plat, v++);
+    for (const st of p.stacks || []) for (const c of stackLayout(st)) createCan(c.code, p.x + c.x, plat.top + c.y, p.z + c.z, plat, v++);
+    if (p.build) p.build(makeBuilder(p, plat)); // structure-based levels (Medium / Difficult)
   });
   for (const o of def.obstacles || []) createObstacle(o);
   computeSupports(); frameLevel();
@@ -1768,7 +2008,7 @@ function startLevel(def, { intro = true } = {}) {
   document.body.dataset.mode = activeMode; applyModeAccent();
   if (!game.isDaily) { game.levelIdx = def.id - 1; prog().lastLevel = def.id; Save.save(); }
   buildLevel(def);
-  Object.assign(game, { score: 0, ballsLeft: def.balls, knocked: 0, total: level.cans.length, throwKnocks: 0, throwsUsed: 0, ended: false, timeScale: 1, slowT: 0, simT: 0, energyActive: false, energyChain: 0 });
+  Object.assign(game, { score: 0, ballsLeft: def.balls, knocked: 0, total: level.cans.length, throwKnocks: 0, throwsUsed: 0, ended: false, timeScale: 1, slowT: 0, simT: 0, energyActive: false, energyChain: 0, springActive: false, springChain: 0 });
   world.time = 0;
   showScreen(null); $('#hud').hidden = false; updateHUD();
   spawnBall();
@@ -1777,20 +2017,30 @@ function startLevel(def, { intro = true } = {}) {
   game.state = 'intro';
   banner(game.isDaily ? 'Daily challenge' : `Level ${def.id}`, def.name, def.hint);
   // One-time Energy Can tutorial: only on the first level the player meets one, never again after that.
-  $('#energyTip').hidden = true; clearTimeout(energyTipTimer);
-  if (levelHasEnergy(def) && !Save.data.energyTipSeen) {
+  // Spring Can tutorial gets the same one-time treatment. If a level has both and neither has been seen, spring comes first.
+  $('#energyTip').hidden = true; $('#springTip').hidden = true; clearTimeout(energyTipTimer);
+  const tip = levelHasSpring(def) && !Save.data.springTipSeen ? ['#springTip', 'springTipSeen'] : levelHasEnergy(def) && !Save.data.energyTipSeen ? ['#energyTip', 'energyTipSeen'] : null;
+  if (tip) {
     energyTipTimer = setTimeout(() => {
       if (!['intro', 'aim', 'resolving'].includes(game.state)) return;
-      $('#energyTip').hidden = false; Save.data.energyTipSeen = true; Save.save();
-      energyTipTimer = setTimeout(() => { $('#energyTip').hidden = true; }, 7000);
+      $(tip[0]).hidden = false; Save.data[tip[1]] = true; Save.save();
+      energyTipTimer = setTimeout(() => { $(tip[0]).hidden = true; }, 7000);
     }, 2600);
   }
 }
 let energyTipTimer = null;
-function levelHasEnergy(def) { return def.specialCanType === 'energy' || def.platforms.some((p) => p.stacks.some((s) => (s.pyr || s.col || []).join('').includes('e'))); }
+/* Which special cans a level uses: from its `specialCanType` (string or list), the built level, or its stack strings */
+function levelHas(def, kind, code) {
+  const st = def.specialCanType; if (st === kind || (Array.isArray(st) && st.includes(kind))) return true;
+  if (level.def === def && level.cans.some((k) => k.t.kind === kind)) return true;
+  return def.platforms.some((p) => (p.stacks || []).some((s) => (s.pyr || s.col || []).join('').includes(code)));
+}
+function levelHasEnergy(def) { return levelHas(def, 'energy', 'e'); }
+function levelHasSpring(def) { return levelHas(def, 'spring', 'p'); }
 function enterAim() {
   game.state = 'aim'; game.throwKnocks = 0; game.hitThisThrow = false; game.comboFlags = {};
-  game.energyActive = false; game.energyChain = 0; for (const c of level.cans) c.chain = false; // energy bonus is per throw
+  game.energyActive = false; game.energyChain = 0; game.springActive = false; game.springChain = 0; // chain bonuses are per throw
+  for (const c of level.cans) c.chain = false; for (const pk of level.planks) pk.chain = false;
   if (ball.state !== 'ready') spawnBall();
   $('#aimHint').hidden = Save.data.hintSeen && !(level.def.id === 1 && game.throwsUsed === 0);
 }
@@ -1809,6 +2059,11 @@ function onCanKnocked(can) {
     addScore(bonus);
     popup(`+${bonus} ⚡×${mult}`, can.mesh.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 'energy');
     if (game.energyChain === 2) { callout('ENERGY BOOST!', 'energy'); Sfx.chime(1); game.comboFlags.nice = true; game.energyCalloutT = performance.now(); }
+  } else if (game.springActive && can.chain && can.t.kind !== 'spring') {
+    // Spring chain bonus (when no energy pulse is running this throw); each can is paid once
+    game.springChain++; addScore(SPRING.chainBonus);
+    popup('+' + SPRING.chainBonus + ' SPRING', can.mesh.position.clone().add(new THREE.Vector3(0, 0.25, 0)), 'spring');
+    if (game.springChain === 2) { callout('SPRING BONUS!', 'spring'); Sfx.chime(1); game.comboFlags.nice = true; game.energyCalloutT = performance.now(); }
   }
   if (game.throwKnocks === 3 && !game.comboFlags.nice) { game.comboFlags.nice = true; callout('NICE HIT!'); Sfx.chime(1); }
   if (game.throwKnocks === 6 && !game.comboFlags.chain) {
@@ -1925,7 +2180,7 @@ world.addEventListener('preStep', () => {
 function tiltY(q) { return 1 - 2 * (q.x * q.x + q.z * q.z); }
 function relSpeed(c) { const v = c.body.velocity; const vx = v.x - (c.plat.moving ? c.plat.vx : 0); return Math.hypot(vx, v.y, v.z) + c.body.angularVelocity.length() * c.sz.r; }
 function wakeChecks() {
-  for (const c of level.cans) {
+  for (const c of level.cans.length && level.planks.length ? [...level.cans, ...level.planks] : level.cans) {
     if (c.body.sleepState !== SLEEPING) continue;
     for (const s of c.supporters) { if (s.body.sleepState !== SLEEPING && (s.knocked || relSpeed(s) > 0.1 || tiltY(s.body.quaternion) < 0.985)) { c.body.wakeUp(); break; } }
   }
@@ -1944,7 +2199,7 @@ function knockChecks(dt) {
 function stepPhysics(dt) {
   const sdt = dt * game.timeScale; game.simT += sdt;
   world.step(FIXED_DT, sdt, 12);
-  updateEnergy(); wakeChecks(); knockChecks(sdt);
+  updateEnergy(); updateSprings(); wakeChecks(); knockChecks(sdt);
 }
 function syncMeshes() {
   for (const c of level.cans) {
@@ -1954,6 +2209,7 @@ function syncMeshes() {
   }
   for (const p of level.platforms) { p.group.position.x = p.moving ? p.body.interpolatedPosition.x : p.body.position.x; }
   for (const o of level.obstacles) if (o.moving) o.group.position.x = o.body.interpolatedPosition.x;
+  for (const pk of level.planks) { const b = pk.body, sl = b.sleepState === SLEEPING; const p = sl ? b.position : b.interpolatedPosition, q = sl ? b.quaternion : b.interpolatedQuaternion; pk.mesh.position.set(p.x, p.y, p.z); pk.mesh.quaternion.set(q.x, q.y, q.z, q.w); }
   if (ball.body && ball.mesh) { const p = ball.body.interpolatedPosition, q = ball.body.interpolatedQuaternion; ball.mesh.position.set(p.x, p.y, p.z); ball.mesh.quaternion.set(q.x, q.y, q.z, q.w); }
 }
 function updateResolve(dt) {
@@ -1988,7 +2244,7 @@ function starSVG(on, cls = 'star') { return `<svg class="${cls}${on ? ' on' : ''
 function updateHUD() {
   const d = level.def; if (!d) return;
   $('#hudLevel').textContent = game.isDaily ? '★' : d.id; $('#hudName').textContent = d.name; $('#hudScore').textContent = fmt(game.score);
-  $('#hudEnergy').hidden = !levelHasEnergy(d);
+  $('#hudEnergy').hidden = !levelHasEnergy(d); $('#hudSpring').hidden = !levelHasSpring(d);
   $('#hudMode').textContent = MODES[activeMode].name.toUpperCase();
   if (d.obj.type === 'score') { $('#hudObj').textContent = `Score ${fmt(d.obj.target)}`; $('#hudBar').style.width = Math.min(100, (game.score / d.obj.target) * 100) + '%'; $('#hudObjNum').textContent = `${fmt(game.score)}`; }
   else { $('#hudObj').textContent = 'Knock down every can'; $('#hudBar').style.width = (game.total ? (game.knocked / game.total) * 100 : 0) + '%'; $('#hudObjNum').textContent = `${game.knocked}/${game.total}`; }
@@ -2138,6 +2394,7 @@ document.addEventListener('click', (e) => {
     case 'back': goBack(); break;
     case 'pause': Sfx.ui(); pause(); break;
     case 'energy-ok': clearTimeout(energyTipTimer); $('#energyTip').hidden = true; break;
+    case 'spring-ok': clearTimeout(energyTipTimer); $('#springTip').hidden = true; break;
     case 'sound': toggleSetting('sound'); toast(Save.data.settings.sound ? 'Sound on' : 'Sound off'); break;
     case 'resume': Sfx.ui(); resume(); break;
     case 'restart': case 'retry': restart(); break;
@@ -2186,7 +2443,7 @@ function tick(dt) {
     if (st === 'resolving') updateResolve(dt);
     else if ((st === 'victory' || st === 'failure') && ball.body) updateResolve(dt);
   }
-  syncMeshes(); animateEnergy(performance.now(), dt);
+  syncMeshes(); animateEnergy(performance.now(), dt); animateSprings(performance.now());
 
   // Ball appear / fade
   if (ball.mesh) {

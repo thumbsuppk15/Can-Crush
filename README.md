@@ -41,13 +41,16 @@ There is nothing to install and no build step.
   - **Effects:** a camera-facing ring and a flat ring, a cyan light flash, sparks, flickering arcs to the four nearest pushed cans, and a small camera shake. No fire, smoke or explosion imagery.
   - **Tutorial and HUD:** a one-time tutorial appears on the first level that has one, and those levels show a bolt icon in the HUD.
   - **Tuning:** values live in the `ENERGY` object; a level can override them with `energy: { radius, push, lift }`.
+- **Spring Can (Medium and Difficult):** a terracotta can standing on a visible steel coil. When the ball hits it, it winds up for 0.07 s and then springs up and forward with one physics impulse, launching whatever rests on it. Every chain can that falls pays +75, and two or more show "SPRING BONUS!". It has its own one-time tutorial and HUD icon. Values live in the `SPRING` object.
+- **Planks:** real wooden boards (dynamic rigid bodies) used for bridges, shelves, seesaws and towers. They start asleep and fall when whatever holds them up is knocked away, so the puzzles are about finding the weak point.
 - **Room:** a minimal indoor sports practice room with tall matte dark-teal panelled walls (light upper band on the right), an oak floor with planks running toward the target, a dark exposed ceiling with recessed spotlights, two warm light strips framing the play zone, and a bench with a basketball in the back corner. Lighting: soft overhead key, cyan ambience, a warm spot over the play zone.
 - **UI type and colour:** Barlow Condensed 800 for LEVEL, SCORE, numbers and headings; Barlow 600 for buttons and gameplay labels; Inter 500 for objectives, hints and small text. Colours: HUD surface #F4EBDD, text #30251F / #76614F, warm action #F29A50, cyan accent #39C6D9 (focus and selection only), progress #86A982.
 - **Feedback:** sparks and dust puffs, real dents in the can mesh around the impact point, camera shake on heavy hits, slow motion on a 6-can chain reaction, floating scores, the "NICE HIT!" / "CHAIN REACTION!" / "PERFECT CLEAR!" callouts, and confetti.
 - **Three difficulty modes, 45 levels:**
   - **Easy** (mint green): the original 15 levels, unchanged.
-  - **Medium** (electric blue): 15 new levels with glass guards, gaps, sliding doors, split heights, small cans, heavy cans and Energy Cans.
-  - **Difficult** (deep purple with fiery orange): 15 new levels with tight slots, hanging glass, moving gates combined with moving stands, tiny towers and multi-stand finales.
+  - **Medium** (electric blue): 15 structure puzzles: plank bridges, a seesaw, zigzag walls, islands at two heights, plank towers, a moving bridge, a hidden support behind glass, and Spring and Energy chain reactions. The finale combines all of them.
+  - **Difficult** (deep purple with fiery orange): 15 advanced puzzles: a heavy-can fortress, stilts, layered depth, a needle slot, a counterweight beam, a spring cascade, twin cores, crossing doors, a skyline of tiny towers, a house of cards, a moving fortress, a three-wall gauntlet, a chain reactor, a vault and "The Machine".
+  - **Design notes:** `LEVEL_DESIGN.md` covers every level's structure, challenge, strategy and why it sits in its mode, plus the test results.
   - **Theming:** each mode has its own colours on the mode cards, level select, HUD badge, buttons, progress bars, results screen, glass rails and wall light strips.
   - **Saving:** progress, unlocks and best scores are saved separately per mode.
   - **Old saves:** progress from before modes existed moves into Easy automatically.
@@ -86,6 +89,19 @@ Everything is in `index.html`, split into numbered sections:
 { name: 'My Level', hint: 'Shown at the start.', balls: 4,
   platforms: [{ x: 0, z: 0, w: 1.4, stacks: [{ pyr: ['nnnn', 'nnn', 'nn', 'n'] }] }] }
 ```
+
+Medium and Difficult levels use the structure builder instead of `stacks`:
+
+```js
+{ name: 'Bridge', hint: '…', balls: 4,
+  platforms: [{ x: 0, z: 0, w: 1.4, build: (S) => {
+    const t = S.col('nn', -0.4, 0); S.col('nn', 0.4, 0);   // two legs, 2 cans tall
+    const p = S.plank(0, 0, 1.15, t);                      // a plank on top of them
+    S.pyr(['nnn', 'nn', 'n'], 0, 0, p);                    // a pyramid on the plank
+  } }] }
+```
+
+`S.can(code, x, z, y)`, `S.col(codes, x, z, y)`, `S.row(codes, x, z, y)`, `S.pyr(rows, x, z, y)`, `S.ring(codes, x, z, radius, y, startDeg)` and `S.plank(x, z, width, y, depth)` all use coordinates relative to the stand's centre and top, and each returns the height of what it built so pieces stack. Can codes: `n` standard, `s` small, `h` heavy, `g`/`G` gold, `e` Energy, `p` Spring. Set `specialCanType: 'spring'`, `'energy'` or `['spring', 'energy']` on levels that use them.
 
 Each string is a row of cans, bottom to top; `n` is a standard can and `e` is an Energy Booster Can. Add `specialCanType: 'energy'` to a level that contains one (it turns on the HUD bolt icon and the first-time tutorial), and optionally `energy: { radius: 1.5, push: 4.0, lift: 2.3 }` to tune that level's pulse. Put several stacks on one stand with `x` offsets, or add a second stand to `platforms`. The goal is always to knock down every can.
 
