@@ -44,7 +44,15 @@ There is nothing to install and no build step.
 - **Room:** a minimal indoor sports practice room with tall matte dark-teal panelled walls (light upper band on the right), an oak floor with planks running toward the target, a dark exposed ceiling with recessed spotlights, two warm light strips framing the play zone, and a bench with a basketball in the back corner. Lighting: soft overhead key, cyan ambience, a warm spot over the play zone.
 - **UI type and colour:** Barlow Condensed 800 for LEVEL, SCORE, numbers and headings; Barlow 600 for buttons and gameplay labels; Inter 500 for objectives, hints and small text. Colours: HUD surface #F4EBDD, text #30251F / #76614F, warm action #F29A50, cyan accent #39C6D9 (focus and selection only), progress #86A982.
 - **Feedback:** sparks and dust puffs, real dents in the can mesh around the impact point, camera shake on heavy hits, slow motion on a 6-can chain reaction, floating scores, the "NICE HIT!" / "CHAIN REACTION!" / "PERFECT CLEAR!" callouts, and confetti.
-- **15 simple levels:** the goal is always to knock down every can. They start with 3 cans and grow gradually through small pyramids, wider rows, taller stacks and two stacks, up to a 21-can pyramid. Ball counts were tuned with an automated playtest so that every level is clearable with spare balls.
+- **Three difficulty modes, 45 levels:**
+  - **Easy** (mint green): the original 15 levels, unchanged.
+  - **Medium** (electric blue): 15 new levels with glass guards, gaps, sliding doors, split heights, small cans, heavy cans and Energy Cans.
+  - **Difficult** (deep purple with fiery orange): 15 new levels with tight slots, hanging glass, moving gates combined with moving stands, tiny towers and multi-stand finales.
+  - **Theming:** each mode has its own colours on the mode cards, level select, HUD badge, buttons, progress bars, results screen, glass rails and wall light strips.
+  - **Saving:** progress, unlocks and best scores are saved separately per mode.
+  - **Old saves:** progress from before modes existed moves into Easy automatically.
+- **Obstacles:** framed glass panels: fences, gaps (`gate`), posts, hanging panels with a slot (`hangGate`) and sliding doors (`mover`, kinematic bodies). The ball and cans bounce off them through normal physics.
+- **Levels are solvable:** every new level was cleared by an automated playtest bot. The bot traces the ball's arc around the glass, waits for sliding doors, and stays inside the player's aiming limits. Ball counts were tuned so a slightly imperfect player still wins with spare balls.
 - **Progression:** clear a level to unlock the next one. The Level Complete screen shows your score and best score, with Next Level, Replay and Main menu. Any unlocked level can be replayed from Level Select. Unused balls give +250 each, and clearing a level with one ball gives +1,000.
 - **Settings:** sound, trajectory guide, camera shake, graphics quality (Low/Medium/High) and reset progress.
 - **Audio:** synthesized with Web Audio (metal clanks, wood thuds, bounces, whoosh, chimes, win and lose). It starts only after your first tap or click.
@@ -72,7 +80,7 @@ Everything is in `index.html`, split into numbered sections:
 15. Main loop
 16. Boot
 
-**Adding a level:** append an object to `LEVELS`.
+**Adding a level:** append an object to `EASY_LEVELS`, `MEDIUM_LEVELS` or `DIFFICULT_LEVELS`. The `MODES` table ties each array to its mode, and level numbers are assigned automatically. Obstacles go in an optional `obstacles: [...]` list, built with `glass(x, z, w, h, y)`, `gate(cx, gap, z, h, span)`, `hangGate(cx, gap, z, y, h, span)` or `mover(x, z, w, h, amp, period, phase)`.
 
 ```js
 { name: 'My Level', hint: 'Shown at the start.', balls: 4,
